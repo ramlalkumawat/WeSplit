@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../ui/Button'
 import Panel from '../ui/Panel'
 import TextField from '../ui/TextField'
@@ -48,12 +48,32 @@ export default function ExpenseComposer({
   const [form, setForm] = useState(() => buildInitialForm(members, currentUserId))
   const [error, setError] = useState('')
 
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined
+    }
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        onClose()
+      }
+    }
+
+    window.addEventListener('keydown', handleEscape)
+
+    return () => {
+      window.removeEventListener('keydown', handleEscape)
+    }
+  }, [isOpen, onClose])
+
   if (!isOpen) {
     return null
   }
 
   const handleFieldChange = (event) => {
     const { name, value } = event.target
+
+    setError('')
     setForm((currentForm) => ({
       ...currentForm,
       [name]: value,
@@ -61,6 +81,7 @@ export default function ExpenseComposer({
   }
 
   const handleToggleParticipant = (memberId) => {
+    setError('')
     setForm((currentForm) => {
       const participantUserIds = currentForm.participantUserIds.includes(memberId)
         ? currentForm.participantUserIds.filter((participantId) => participantId !== memberId)
@@ -78,6 +99,7 @@ export default function ExpenseComposer({
   }
 
   const handleSplitTypeChange = (nextSplitType) => {
+    setError('')
     setForm((currentForm) => ({
       ...currentForm,
       splitType: nextSplitType,
@@ -89,6 +111,7 @@ export default function ExpenseComposer({
   }
 
   const handleCustomShareChange = (memberId, value) => {
+    setError('')
     setForm((currentForm) => ({
       ...currentForm,
       customShares: {
@@ -99,6 +122,10 @@ export default function ExpenseComposer({
   }
 
   const equalSharePreview = buildEqualShares(form.amount, form.participantUserIds)
+  const customSplitTotal = form.participantUserIds.reduce(
+    (sum, participantUserId) => sum + Number(form.customShares[participantUserId] || 0),
+    0,
+  )
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -154,8 +181,15 @@ export default function ExpenseComposer({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/50 px-4 py-6 backdrop-blur-sm md:items-center">
-      <Panel className="w-full max-w-3xl p-6 md:p-8">
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/50 px-4 py-6 backdrop-blur-sm md:items-center"
+      onClick={onClose}
+      role="presentation"
+    >
+      <Panel
+        className="w-full max-w-3xl p-6 md:p-8"
+        onClick={(event) => event.stopPropagation()}
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="section-badge">Add Expense</p>
@@ -292,6 +326,11 @@ export default function ExpenseComposer({
                 )
               })}
             </div>
+            {form.splitType === 'custom' ? (
+              <p className="mt-3 text-sm text-slate-500">
+                Custom total: {formatCurrency(customSplitTotal)} of {formatCurrency(form.amount || 0)}
+              </p>
+            ) : null}
           </div>
 
           {error ? (
@@ -304,7 +343,7 @@ export default function ExpenseComposer({
             <Button type="button" variant="secondary" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} loading={isSubmitting}>
               Save Expense
             </Button>
           </div>

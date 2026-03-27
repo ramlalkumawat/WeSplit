@@ -31,7 +31,7 @@ export default function OverviewCards({ overview }) {
       {cards.map((card) => (
         <Panel
           key={card.key}
-          className="p-5 transition duration-200 hover:-translate-y-1 hover:shadow-soft"
+          className="p-6 transition duration-200 hover:-translate-y-1 hover:shadow-soft"
         >
           <p className="text-sm font-medium text-slate-500">{card.label}</p>
           <p className={`mt-3 text-3xl font-semibold tracking-tight ${card.tone}`}>

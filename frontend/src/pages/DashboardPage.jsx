@@ -1,174 +1,169 @@
-import { useState } from 'react'
-import DashboardHeader from '../components/dashboard/DashboardHeader'
-import ExpenseComposer from '../components/dashboard/ExpenseComposer'
-import GroupSidebar from '../components/dashboard/GroupSidebar'
-import GroupWorkspace from '../components/dashboard/GroupWorkspace'
+import { Link } from 'react-router-dom'
 import OverviewCards from '../components/dashboard/OverviewCards'
-import Button from '../components/ui/Button'
-import StatusBanner from '../components/ui/StatusBanner'
+import Panel from '../components/ui/Panel'
+import { getButtonClasses } from '../components/ui/buttonStyles'
 import { useAuth } from '../hooks/useAuth'
 import { useDashboardData } from '../hooks/useDashboardData'
+import { formatCurrency, formatDateTime } from '../utils/formatters'
 
 export default function DashboardPage() {
-  const { logout, user } = useAuth()
-  const {
-    addExpense,
-    addMember,
-    createGroup,
-    feedback,
-    groups,
-    isLoadingGroupDetail,
-    isMutating,
-    overview,
-    removeMember,
-    selectedGroupDetail,
-    selectedGroupId,
-    setFeedback,
-    setSelectedGroupId,
-  } = useDashboardData()
-  const [groupForm, setGroupForm] = useState({
-    name: '',
-    description: '',
-    memberEmails: '',
-  })
-  const [memberEmail, setMemberEmail] = useState('')
-  const [isExpenseComposerOpen, setIsExpenseComposerOpen] = useState(false)
-
-  const handleGroupFormChange = (event) => {
-    const { name, value } = event.target
-    setGroupForm((currentForm) => ({
-      ...currentForm,
-      [name]: value,
-    }))
-  }
-
-  const handleCreateGroup = async (event) => {
-    event.preventDefault()
-
-    try {
-      await createGroup({
-        name: groupForm.name,
-        description: groupForm.description,
-        memberEmails: groupForm.memberEmails
-          .split(',')
-          .map((email) => email.trim())
-          .filter(Boolean),
-      })
-      setGroupForm({
-        name: '',
-        description: '',
-        memberEmails: '',
-      })
-    } catch (error) {
-      setFeedback({
-        type: 'error',
-        message: error.message,
-      })
-    }
-  }
-
-  const handleAddMember = async (event) => {
-    event.preventDefault()
-
-    if (!memberEmail.trim()) {
-      return
-    }
-
-    try {
-      await addMember(memberEmail.trim())
-      setMemberEmail('')
-    } catch (error) {
-      setFeedback({
-        type: 'error',
-        message: error.message,
-      })
-    }
-  }
-
-  const handleRemoveMember = async (memberId) => {
-    if (!window.confirm('Remove this member from the group?')) {
-      return
-    }
-
-    try {
-      await removeMember(memberId)
-    } catch (error) {
-      setFeedback({
-        type: 'error',
-        message: error.message,
-      })
-    }
-  }
-
-  const handleAddExpense = async (payload) => {
-    try {
-      await addExpense(payload)
-    } catch (error) {
-      setFeedback({
-        type: 'error',
-        message: error.message,
-      })
-      throw error
-    }
-  }
+  const { user } = useAuth()
+  const { groups, isLoadingGroups, overview } = useDashboardData()
+  const firstName = user?.name?.split(' ')[0] || 'there'
+  const spotlightGroups = groups.slice(0, 3)
 
   return (
-    <div className="relative min-h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute left-[-8rem] top-[6rem] h-72 w-72 rounded-full bg-primary/18 blur-3xl" />
-        <div className="absolute right-[-6rem] top-[-2rem] h-80 w-80 rounded-full bg-violet-400/24 blur-3xl" />
-        <div className="absolute bottom-[-8rem] left-[35%] h-80 w-80 rounded-full bg-cyan-300/18 blur-3xl" />
-      </div>
+    <div className="space-y-8">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_360px]">
+        <Panel className="p-7 md:p-8">
+          <p className="section-badge">Dashboard</p>
+          <h1 className="mt-6 text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">
+            Welcome back, {firstName}. Your shared money system is ready.
+          </h1>
+          <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600">
+            Track active groups, open the ones that need attention, and move from raw
+            expenses to clear settle-up decisions with a more polished Wesplit workflow.
+          </p>
 
-      <div className="mx-auto max-w-7xl">
-        <DashboardHeader user={user} onLogout={logout} />
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Link className={getButtonClasses({ variant: 'primary' })} to="/groups">
+              Manage Groups
+            </Link>
+            <Link
+              className={getButtonClasses({ variant: 'secondary' })}
+              to={groups[0] ? `/groups/${groups[0].id}` : '/groups'}
+            >
+              Open Latest Group
+            </Link>
+          </div>
+        </Panel>
 
-        <StatusBanner tone={feedback?.type || 'info'} message={feedback?.message} />
+        <Panel className="p-6">
+          <p className="eyebrow">Product upgrade</p>
+          <div className="mt-5 space-y-4">
+            {[
+              'Landing, auth, and app areas now follow one consistent design system.',
+              'Protected routes keep dashboard and group data behind authenticated sessions.',
+              'Reusable components make the UI easier to extend as the product grows.',
+            ].map((item) => (
+              <div
+                key={item}
+                className="rounded-[24px] border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-7 text-slate-600"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </section>
 
-        <div className="mt-6">
-          <OverviewCards overview={overview} />
-        </div>
+      <OverviewCards overview={overview} />
 
-        <main className="mt-6 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
-          <GroupSidebar
-            form={groupForm}
-            groups={groups}
-            isMutating={isMutating}
-            onChange={handleGroupFormChange}
-            onSelectGroup={setSelectedGroupId}
-            onSubmit={handleCreateGroup}
-            selectedGroupId={selectedGroupId}
-          />
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_360px]">
+        <Panel className="p-6 md:p-7">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="section-badge">Groups Snapshot</p>
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-950">
+                The groups worth checking today.
+              </h2>
+            </div>
+            <Link className={getButtonClasses({ variant: 'secondary' })} to="/groups">
+              View all groups
+            </Link>
+          </div>
 
-          <GroupWorkspace
-            currentUserId={user?.id}
-            detail={selectedGroupDetail}
-            isLoading={isLoadingGroupDetail}
-            isMutating={isMutating}
-            memberEmail={memberEmail}
-            onMemberEmailChange={(event) => setMemberEmail(event.target.value)}
-            onOpenExpenseComposer={() => setIsExpenseComposerOpen(true)}
-            onRemoveMember={handleRemoveMember}
-            onSubmitMember={handleAddMember}
-          />
-        </main>
-      </div>
+          <div className="mt-6 space-y-4">
+            {isLoadingGroups ? (
+              Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={`dashboard-group-skeleton-${index}`}
+                  className="animate-pulse rounded-[26px] border border-white/70 bg-white/88 p-5"
+                >
+                  <div className="h-5 w-40 rounded-full bg-slate-200" />
+                  <div className="mt-3 h-4 w-full rounded-full bg-slate-200" />
+                  <div className="mt-4 h-4 w-32 rounded-full bg-slate-200" />
+                </div>
+              ))
+            ) : spotlightGroups.length ? (
+              spotlightGroups.map((group) => (
+                <article
+                  key={group.id}
+                  className="rounded-[26px] border border-white/70 bg-white/88 p-5 shadow-soft"
+                >
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <p className="text-xl font-bold text-slate-950">{group.name}</p>
+                      <p className="mt-2 text-sm leading-7 text-slate-500">
+                        {group.description || 'No description added yet for this group.'}
+                      </p>
+                      <div className="mt-4 flex flex-wrap gap-2 text-xs uppercase tracking-[0.18em] text-slate-400">
+                        <span>{group.memberCount} members</span>
+                        <span>{group.expenseCount} expenses</span>
+                        <span>{formatDateTime(group.lastActivityAt)}</span>
+                      </div>
+                    </div>
 
-      {selectedGroupDetail?.group ? (
-        <div className="fixed bottom-6 right-6 z-20">
-          <Button onClick={() => setIsExpenseComposerOpen(true)}>Add Expense</Button>
-        </div>
-      ) : null}
+                    <div className="flex flex-col items-start gap-3 lg:items-end">
+                      <p
+                        className={`text-xl font-bold ${
+                          group.yourBalance >= 0 ? 'text-success' : 'text-danger'
+                        }`}
+                      >
+                        {formatCurrency(group.yourBalance, group.currency)}
+                      </p>
+                      <Link
+                        className={getButtonClasses({ variant: 'secondary' })}
+                        to={`/groups/${group.id}`}
+                      >
+                        Open Group
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="rounded-[28px] border border-dashed border-primary/18 bg-primary/6 p-6">
+                <p className="text-lg font-semibold text-slate-950">No groups yet</p>
+                <p className="mt-3 text-sm leading-7 text-slate-600">
+                  Head to the groups workspace to create your first shared expense group.
+                </p>
+                <Link className={`mt-5 ${getButtonClasses({ variant: 'primary' })}`} to="/groups">
+                  Create Your First Group
+                </Link>
+              </div>
+            )}
+          </div>
+        </Panel>
 
-      <ExpenseComposer
-        key={`${selectedGroupDetail?.group?.id || 'group'}-${isExpenseComposerOpen ? 'open' : 'closed'}`}
-        currentUserId={user?.id}
-        isOpen={isExpenseComposerOpen}
-        isSubmitting={isMutating}
-        members={selectedGroupDetail?.group?.members || []}
-        onClose={() => setIsExpenseComposerOpen(false)}
-        onSubmit={handleAddExpense}
-      />
+        <Panel className="p-6">
+          <p className="section-badge">Why this feels better</p>
+          <div className="mt-5 space-y-4">
+            {[
+              {
+                description:
+                  'Public discovery and CTA flow makes the app feel like a product, not just a utility screen.',
+                title: 'Stronger first impression',
+              },
+              {
+                description:
+                  'Dashboard and groups are separated so high-level overview and operational work each have room to breathe.',
+                title: 'Cleaner route architecture',
+              },
+              {
+                description:
+                  'Responsive layout choices keep the same product identity on mobile, tablet, and desktop.',
+                title: 'Mobile-first experience',
+              },
+            ].map((item) => (
+              <div key={item.title} className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
+                <p className="text-base font-semibold text-slate-950">{item.title}</p>
+                <p className="mt-2 text-sm leading-7 text-slate-600">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </section>
     </div>
   )
 }

@@ -1,3 +1,7 @@
-export default function Panel({ children, className = '' }) {
-  return <div className={`glass-panel rounded-[28px] ${className}`.trim()}>{children}</div>
+export default function Panel({ children, className = '', ...props }) {
+  return (
+    <div className={`glass-panel ${className}`.trim()} {...props}>
+      {children}
+    </div>
+  )
 }

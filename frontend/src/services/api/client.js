@@ -24,6 +24,7 @@ const buildApiError = (error) => {
 
   normalizedError.statusCode = error.response?.status
   normalizedError.details = error.response?.data?.details || null
+  normalizedError.fieldMessages = error.response?.data?.details?.fields || []
 
   return normalizedError
 }

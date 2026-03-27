@@ -4,8 +4,10 @@ import TextField from '../ui/TextField'
 import { formatCurrency, formatDateTime } from '../../utils/formatters'
 
 export default function GroupSidebar({
+  errors = {},
   form,
   groups,
+  isLoading = false,
   isMutating,
   onChange,
   onSelectGroup,
@@ -32,7 +34,18 @@ export default function GroupSidebar({
         </div>
 
         <div className="mt-6 space-y-3">
-          {groups.length ? (
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={`group-skeleton-${index}`}
+                className="animate-pulse rounded-3xl border border-white/60 bg-white/70 p-4"
+              >
+                <div className="h-5 w-32 rounded-full bg-slate-200" />
+                <div className="mt-3 h-4 w-full rounded-full bg-slate-200" />
+                <div className="mt-4 h-4 w-40 rounded-full bg-slate-200" />
+              </div>
+            ))
+          ) : groups.length ? (
             groups.map((group) => (
               <button
                 key={group.id}
@@ -79,6 +92,7 @@ export default function GroupSidebar({
         <p className="section-badge">Create Group</p>
         <form className="mt-5 space-y-4" onSubmit={onSubmit}>
           <TextField
+            error={errors.name}
             label="Group name"
             name="name"
             value={form.name}
@@ -86,6 +100,7 @@ export default function GroupSidebar({
             placeholder="Goa Trip"
           />
           <TextField
+            error={errors.description}
             label="Description"
             name="description"
             value={form.description}
@@ -94,13 +109,15 @@ export default function GroupSidebar({
             textarea
           />
           <TextField
+            error={errors.memberEmails}
+            helpText="Separate multiple email addresses with commas."
             label="Add members by email"
             name="memberEmails"
             value={form.memberEmails}
             onChange={onChange}
             placeholder="friend@gmail.com, flatmate@company.com"
           />
-          <Button type="submit" className="w-full" disabled={isMutating}>
+          <Button type="submit" className="w-full" disabled={isMutating} loading={isMutating}>
             Create Group
           </Button>
         </form>

@@ -1,14 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
 @import 'tailwindcss';
 
 @theme {
-  --color-primary: #4f46e5;
-  --color-success: #22c55e;
-  --color-danger: #ef4444;
-  --font-heading: 'Poppins', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  --shadow-glass: 0 24px 60px rgba(79, 70, 229, 0.14);
-  --shadow-soft: 0 18px 38px rgba(15, 23, 42, 0.1);
+  --color-primary: #0f766e;
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-highlight: #f97316;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --shadow-glass: 0 28px 80px rgba(15, 23, 42, 0.12);
+  --shadow-soft: 0 18px 42px rgba(15, 23, 42, 0.09);
 }
 
 @layer base {
@@ -25,11 +26,11 @@
   }
 
   body {
-    @apply min-h-screen bg-slate-100 font-body text-slate-900 antialiased;
-    background-image:
-      radial-gradient(circle at 10% 10%, rgba(79, 70, 229, 0.18), transparent 28%),
-      radial-gradient(circle at 90% 12%, rgba(139, 92, 246, 0.2), transparent 24%),
-      linear-gradient(180deg, #f8faff 0%, #eef2ff 48%, #f8fafc 100%);
+    @apply min-h-screen font-body text-slate-900 antialiased;
+    background:
+      radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 32%),
+      radial-gradient(circle at top right, rgba(249, 115, 22, 0.16), transparent 24%),
+      linear-gradient(180deg, #fffdf9 0%, #f5f7fb 46%, #edf4f2 100%);
   }
 
   body::before {
@@ -38,11 +39,19 @@
     inset: 0;
     pointer-events: none;
     background-image:
-      linear-gradient(rgba(255, 255, 255, 0.28) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.22) 1px, transparent 1px);
-    background-size: 72px 72px;
-    mask-image: radial-gradient(circle at center, black 35%, transparent 90%);
-    opacity: 0.32;
+      linear-gradient(rgba(15, 23, 42, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 23, 42, 0.02) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(circle at center, black 28%, transparent 88%);
+    opacity: 0.9;
+  }
+
+  a,
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
   }
 
   h1,
@@ -54,30 +63,34 @@
     font-family: var(--font-heading);
   }
 
-  button,
-  input {
-    font: inherit;
-  }
-
   #root {
     min-height: 100vh;
+    isolation: isolate;
+  }
+
+  ::selection {
+    background: rgba(15, 118, 110, 0.18);
   }
 }
 
 @layer components {
   .glass-panel {
-    @apply border border-white/50 bg-white/60 backdrop-blur-md shadow-glass;
-  }
-
-  .gradient-button {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-violet-500 px-5 py-3 font-semibold text-white shadow-lg shadow-primary/20 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/35 disabled:cursor-not-allowed disabled:opacity-70;
-  }
-
-  .ghost-button {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/70 px-4 py-3 font-medium text-slate-700 transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-white hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/25;
+    @apply rounded-[30px] border border-white/70 bg-white/78 backdrop-blur-xl shadow-glass;
   }
 
   .section-badge {
-    @apply inline-flex items-center rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary;
+    @apply inline-flex items-center rounded-full border border-primary/15 bg-primary/8 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.24em] text-primary;
+  }
+
+  .eyebrow {
+    @apply text-xs font-bold uppercase tracking-[0.24em] text-primary/70;
+  }
+
+  .page-shell {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .soft-card {
+    @apply rounded-[28px] border border-slate-200/70 bg-white/88 shadow-soft;
   }
 }

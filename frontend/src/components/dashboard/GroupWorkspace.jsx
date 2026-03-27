@@ -18,6 +18,7 @@ export default function GroupWorkspace({
   isLoading,
   isMutating,
   memberEmail,
+  memberError,
   onMemberEmailChange,
   onOpenExpenseComposer,
   onRemoveMember,
@@ -158,13 +159,15 @@ export default function GroupWorkspace({
           {group.isAdmin ? (
             <form className="mt-6 space-y-4" onSubmit={onSubmitMember}>
               <TextField
+                error={memberError}
+                helpText="Invite someone who already has a Wesplit account."
                 label="Invite by email"
                 name="memberEmail"
                 value={memberEmail}
                 onChange={onMemberEmailChange}
                 placeholder="friend@gmail.com"
               />
-              <Button type="submit" disabled={isMutating}>
+              <Button type="submit" disabled={isMutating} loading={isMutating}>
                 Add Member
               </Button>
             </form>
