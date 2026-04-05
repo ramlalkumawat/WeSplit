@@ -4,11 +4,14 @@ import { useAuth } from '../hooks/useAuth'
 import { useDashboardData } from '../hooks/useDashboardData'
 import BrandMark from '../components/layout/BrandMark'
 import Button from '../components/ui/Button'
+import Icon from '../components/ui/Icon'
 import StatusBanner from '../components/ui/StatusBanner'
+import { formatCurrency } from '../utils/formatters'
 
 const navigationItems = [
   { label: 'Dashboard', to: '/dashboard' },
   { label: 'Groups', to: '/groups' },
+  { label: 'Onboarding', to: '/onboarding' },
 ]
 
 function AppNavLink({ label, to, badge }) {
@@ -34,7 +37,7 @@ function AppNavLink({ label, to, badge }) {
 export default function AppShell() {
   const navigate = useNavigate()
   const { logout, user } = useAuth()
-  const { feedback, groups } = useDashboardData()
+  const { feedback, groups, overview } = useDashboardData()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const handleLogout = () => {
@@ -44,6 +47,9 @@ export default function AppShell() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
       <div className="absolute inset-0 -z-10">
         <div className="absolute left-[-10rem] top-[-4rem] h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute bottom-[-8rem] right-[-6rem] h-96 w-96 rounded-full bg-highlight/10 blur-3xl" />
@@ -69,6 +75,19 @@ export default function AppShell() {
             <div className="rounded-[24px] border border-slate-200 bg-white/90 px-4 py-3 text-right shadow-soft">
               <p className="text-sm font-semibold text-slate-950">{user?.name}</p>
               <p className="mt-1 text-xs text-slate-500">{user?.email}</p>
+            </div>
+            <div className="rounded-[24px] border border-slate-200 bg-white/90 px-4 py-3 shadow-soft">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <Icon name="balance" size={18} />
+                </span>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Net balance</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-950">
+                    {formatCurrency(overview.netBalance, overview.primaryCurrency)}
+                  </p>
+                </div>
+              </div>
             </div>
             <Button onClick={handleLogout} variant="secondary">
               Logout
@@ -123,7 +142,7 @@ export default function AppShell() {
         ) : null}
       </header>
 
-      <main className="page-shell pb-12 pt-8">
+      <main className="page-shell pb-12 pt-8" id="main-content">
         {feedback ? (
           <div className="mb-6">
             <StatusBanner message={feedback.message} tone={feedback.type || 'info'} />

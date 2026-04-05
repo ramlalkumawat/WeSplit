@@ -10,7 +10,11 @@ export default function StatusBanner({ tone = 'info', message }) {
   }
 
   return (
-    <div className={`rounded-2xl border px-4 py-3 text-sm font-medium shadow-sm ${tones[tone]}`}>
+    <div
+      aria-live="polite"
+      className={`rounded-2xl border px-4 py-3 text-sm font-medium shadow-sm ${tones[tone]}`}
+      role="status"
+    >
       {message}
     </div>
   )

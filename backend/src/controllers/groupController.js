@@ -1,6 +1,7 @@
 const {
   addMemberToGroup,
   createGroup,
+  createSettlement,
   getGroupDetails,
   listGroupsForUser,
   removeMemberFromGroup,
@@ -8,7 +9,11 @@ const {
 const { sendResponse } = require('../utils/apiResponse')
 const asyncHandler = require('../utils/asyncHandler')
 const AppError = require('../utils/appError')
-const { validateAddMember, validateCreateGroup } = require('../utils/validation')
+const {
+  validateAddMember,
+  validateCreateGroup,
+  validateCreateSettlement,
+} = require('../utils/validation')
 const { serializeExpense } = require('../services/expenseService')
 
 const collectValidationErrors = (details) => details.map((detail) => detail.message)
@@ -64,7 +69,9 @@ const getGroupSettlements = asyncHandler(async (req, res) => {
       group: data.group,
       balances: data.balances,
       settlements: data.settlements,
+      settlementRecords: data.settlementRecords,
       summary: data.summary,
+      analytics: data.analytics,
     },
   })
 })
@@ -105,9 +112,31 @@ const removeMember = asyncHandler(async (req, res) => {
   })
 })
 
+const createNewSettlement = asyncHandler(async (req, res) => {
+  const { error, value } = validateCreateSettlement(req.body)
+
+  if (error) {
+    throw new AppError('Please fix the settlement details and try again', 400, {
+      fields: collectValidationErrors(error.details),
+    })
+  }
+
+  const data = await createSettlement(req.params.groupId, value, req.user.id)
+
+  return sendResponse(res, {
+    statusCode: 201,
+    message: 'Settlement recorded successfully',
+    data: {
+      ...data,
+      expenses: data.expenses.map(serializeExpense),
+    },
+  })
+})
+
 module.exports = {
   addMember,
   createNewGroup,
+  createNewSettlement,
   getGroup,
   getGroupSettlements,
   listGroups,

@@ -9,6 +9,11 @@ const emptyOverview = {
   totalOwed: 0,
   totalOwe: 0,
   netBalance: 0,
+  totalSettled: 0,
+  pendingSettlements: 0,
+  primaryCurrency: 'INR',
+  hasMixedCurrencies: false,
+  currencyBreakdown: [],
 }
 
 const emptyGroupDetail = null
@@ -27,14 +32,30 @@ const initialState = {
 const normalizeGroupDetail = (data) => ({
   group: data.group,
   expenses: data.expenses || [],
+  settlementRecords: data.settlementRecords || [],
   balances: data.balances || [],
-  settlements: data.settlements || [],
+  settlements: (data.settlements || []).map((settlement, index) => ({
+    ...settlement,
+    id: settlement.id || `${settlement.fromUser.id}-${settlement.toUser.id}-${index}`,
+  })),
   summary: data.summary || {
     totalExpenses: 0,
+    totalSettled: 0,
     totalMembers: 0,
+    expenseCount: 0,
+    settlementCount: 0,
+    pendingSettlements: 0,
     yourBalance: 0,
     yourOwed: 0,
     yourOwe: 0,
+    yourSettled: 0,
+    yourReceived: 0,
+  },
+  analytics: data.analytics || {
+    categoryBreakdown: [],
+    monthlyActivity: [],
+    memberActivity: [],
+    recentActivity: [],
   },
 })
 
@@ -366,6 +387,33 @@ export function DashboardDataProvider({ children }) {
     }
   }
 
+  const recordSettlement = async (values) => {
+    dispatch({ type: 'MUTATION_START' })
+
+    try {
+      const data = await groupService.createSettlement(state.selectedGroupId, values)
+
+      dispatch({
+        type: 'GROUP_DETAIL_SUCCESS',
+        payload: normalizeGroupDetail(data),
+      })
+      setFeedback({
+        type: 'success',
+        message: 'Settlement recorded successfully.',
+      })
+      refreshDashboard()
+      return data
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        message: error.message,
+      })
+      throw error
+    } finally {
+      dispatch({ type: 'MUTATION_END' })
+    }
+  }
+
   return (
     <DashboardDataContext.Provider
       value={{
@@ -373,6 +421,7 @@ export function DashboardDataProvider({ children }) {
         addExpense,
         addMember,
         createGroup,
+        recordSettlement,
         refreshDashboard,
         removeMember,
         setFeedback,

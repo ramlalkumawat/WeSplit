@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { EXPENSE_CATEGORIES } = require('../constants/finance')
 
 const expenseParticipantSchema = new mongoose.Schema(
   {
@@ -41,6 +42,11 @@ const expenseSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: [0.01, 'Expense amount must be greater than zero'],
+    },
+    category: {
+      type: String,
+      enum: EXPENSE_CATEGORIES,
+      default: 'other',
     },
     splitType: {
       type: String,

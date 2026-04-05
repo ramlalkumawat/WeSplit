@@ -1,20 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap');
 @import 'tailwindcss';
 
 @theme {
-  --color-primary: #0f766e;
-  --color-success: #16a34a;
-  --color-danger: #dc2626;
-  --color-highlight: #f97316;
-  --font-heading: 'Space Grotesk', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --shadow-glass: 0 28px 80px rgba(15, 23, 42, 0.12);
-  --shadow-soft: 0 18px 42px rgba(15, 23, 42, 0.09);
+  --color-primary: #155eef;
+  --color-success: #17b26a;
+  --color-danger: #f04438;
+  --color-highlight: #f79009;
+  --font-heading: 'Sora', sans-serif;
+  --font-body: 'Manrope', sans-serif;
+  --shadow-glass: 0 32px 90px rgba(15, 23, 42, 0.14);
+  --shadow-soft: 0 18px 48px rgba(15, 23, 42, 0.08);
 }
 
 @layer base {
   :root {
     color-scheme: light;
+    --page-bg:
+      radial-gradient(circle at top left, rgba(21, 94, 239, 0.14), transparent 28%),
+      radial-gradient(circle at 85% 12%, rgba(15, 118, 110, 0.11), transparent 20%),
+      radial-gradient(circle at bottom right, rgba(247, 144, 9, 0.14), transparent 22%),
+      linear-gradient(180deg, #fcfdff 0%, #f4f8ff 52%, #f8fafc 100%);
   }
 
   * {
@@ -27,10 +32,7 @@
 
   body {
     @apply min-h-screen font-body text-slate-900 antialiased;
-    background:
-      radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 32%),
-      radial-gradient(circle at top right, rgba(249, 115, 22, 0.16), transparent 24%),
-      linear-gradient(180deg, #fffdf9 0%, #f5f7fb 46%, #edf4f2 100%);
+    background: var(--page-bg);
   }
 
   body::before {
@@ -39,11 +41,11 @@
     inset: 0;
     pointer-events: none;
     background-image:
-      linear-gradient(rgba(15, 23, 42, 0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(15, 23, 42, 0.02) 1px, transparent 1px);
-    background-size: 64px 64px;
-    mask-image: radial-gradient(circle at center, black 28%, transparent 88%);
-    opacity: 0.9;
+      linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 23, 42, 0.024) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(circle at center, black 18%, transparent 82%);
+    opacity: 0.75;
   }
 
   a,
@@ -68,22 +70,32 @@
     isolation: isolate;
   }
 
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
   ::selection {
-    background: rgba(15, 118, 110, 0.18);
+    background: rgba(21, 94, 239, 0.18);
+  }
+
+  :focus-visible {
+    outline: 2px solid rgba(21, 94, 239, 0.45);
+    outline-offset: 2px;
   }
 }
 
 @layer components {
   .glass-panel {
-    @apply rounded-[30px] border border-white/70 bg-white/78 backdrop-blur-xl shadow-glass;
+    @apply rounded-[30px] border border-white/70 bg-white/82 shadow-glass backdrop-blur-xl;
   }
 
   .section-badge {
-    @apply inline-flex items-center rounded-full border border-primary/15 bg-primary/8 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.24em] text-primary;
+    @apply inline-flex items-center rounded-full border border-primary/14 bg-primary/7 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.26em] text-primary;
   }
 
   .eyebrow {
-    @apply text-xs font-bold uppercase tracking-[0.24em] text-primary/70;
+    @apply text-xs font-extrabold uppercase tracking-[0.26em] text-primary/70;
   }
 
   .page-shell {
@@ -91,6 +103,88 @@
   }
 
   .soft-card {
-    @apply rounded-[28px] border border-slate-200/70 bg-white/88 shadow-soft;
+    @apply rounded-[28px] border border-slate-200/70 bg-white/90 shadow-soft;
+  }
+
+  .data-card {
+    @apply rounded-[24px] border border-slate-200/70 bg-white/88 shadow-soft;
+  }
+
+  .noise-border {
+    position: relative;
+  }
+
+  .noise-border::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.7),
+      rgba(21, 94, 239, 0.15),
+      rgba(247, 144, 9, 0.18)
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .skip-link {
+    @apply absolute left-4 top-4 z-[80] rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white;
+    transform: translateY(-180%);
+    transition: transform 150ms ease;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .bg-mesh {
+    background:
+      radial-gradient(circle at 20% 20%, rgba(21, 94, 239, 0.12), transparent 25%),
+      radial-gradient(circle at 80% 0%, rgba(247, 144, 9, 0.12), transparent 20%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 248, 255, 0.92));
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-fade-up {
+    animation: fade-up 560ms ease both;
+  }
+
+  .animate-float-slow {
+    animation: float-slow 10s ease-in-out infinite;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
   }
 }

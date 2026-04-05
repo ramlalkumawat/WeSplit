@@ -1,7 +1,9 @@
 import Button from '../ui/Button'
 import Panel from '../ui/Panel'
 import TextField from '../ui/TextField'
-import { formatCurrency, formatDateTime } from '../../utils/formatters'
+import Icon from '../ui/Icon'
+import { currencyOptions } from '../../data/financeOptions'
+import { formatCurrency, formatRelativeDate } from '../../utils/formatters'
 
 export default function GroupSidebar({
   errors = {},
@@ -22,8 +24,8 @@ export default function GroupSidebar({
             <p className="section-badge">Groups</p>
             <h2 className="mt-4 text-2xl font-semibold text-slate-900">Your groups</h2>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Manage rent, trips, food orders, office spends, and shared daily bills in
-              one place.
+              Move between homes, trips, and team spend workspaces without losing the
+              story behind each balance.
             </p>
           </div>
 
@@ -76,7 +78,11 @@ export default function GroupSidebar({
                 <div className="mt-4 flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.16em] text-slate-400">
                   <span>{group.memberCount} members</span>
                   <span>{group.expenseCount} expenses</span>
-                  <span>{formatDateTime(group.lastActivityAt)}</span>
+                  <span>{group.pendingSettlements || 0} pending</span>
+                </div>
+                <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+                  <span>Last activity</span>
+                  <span>{formatRelativeDate(group.lastActivityAt)}</span>
                 </div>
               </button>
             ))
@@ -108,6 +114,24 @@ export default function GroupSidebar({
             placeholder="Stay, cabs, meals, shopping, and local travel"
             textarea
           />
+          <label className="block">
+            <span className="mb-2 block text-sm font-semibold text-slate-700">Currency</span>
+            <select
+              className="w-full rounded-2xl border border-slate-200 bg-white/94 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary/30 focus:ring-2 focus:ring-primary/18"
+              name="currency"
+              onChange={onChange}
+              value={form.currency}
+            >
+              {currencyOptions.map((currency) => (
+                <option key={currency.code} value={currency.code}>
+                  {currency.code} - {currency.label}
+                </option>
+              ))}
+            </select>
+            {errors.currency ? (
+              <span className="mt-2 block text-sm text-danger">{errors.currency}</span>
+            ) : null}
+          </label>
           <TextField
             error={errors.memberEmails}
             helpText="Separate multiple email addresses with commas."
@@ -117,6 +141,17 @@ export default function GroupSidebar({
             onChange={onChange}
             placeholder="friend@gmail.com, flatmate@company.com"
           />
+          <div className="rounded-[24px] border border-slate-200/70 bg-slate-50/80 px-4 py-4">
+            <div className="flex items-start gap-3">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Icon name="group" size={18} />
+              </span>
+              <p className="text-sm leading-6 text-slate-600">
+                Group creation immediately unlocks balances, member management, expense
+                tracking, and settlement history for that workspace.
+              </p>
+            </div>
+          </div>
           <Button type="submit" className="w-full" disabled={isMutating} loading={isMutating}>
             Create Group
           </Button>

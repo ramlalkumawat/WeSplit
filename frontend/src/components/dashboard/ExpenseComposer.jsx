@@ -3,6 +3,8 @@ import Button from '../ui/Button'
 import Panel from '../ui/Panel'
 import TextField from '../ui/TextField'
 import { formatCurrency } from '../../utils/formatters'
+import { expenseCategoryOptions } from '../../data/financeOptions'
+import Icon from '../ui/Icon'
 
 function buildEqualShares(amount, participantIds) {
   const numericAmount = Number(amount || 0)
@@ -30,6 +32,7 @@ function buildInitialForm(members, currentUserId) {
     title: '',
     description: '',
     amount: '',
+    category: 'other',
     paidByUserId: defaultPayer,
     participantUserIds,
     splitType: 'equal',
@@ -39,6 +42,7 @@ function buildInitialForm(members, currentUserId) {
 
 export default function ExpenseComposer({
   currentUserId,
+  currency = 'INR',
   isOpen,
   isSubmitting,
   members,
@@ -77,6 +81,10 @@ export default function ExpenseComposer({
     setForm((currentForm) => ({
       ...currentForm,
       [name]: value,
+      customShares:
+        name === 'amount' && currentForm.splitType === 'custom'
+          ? buildEqualShares(value, currentForm.participantUserIds)
+          : currentForm.customShares,
     }))
   }
 
@@ -138,7 +146,7 @@ export default function ExpenseComposer({
     }
 
     if (!numericAmount || numericAmount <= 0) {
-      setError('Enter a valid amount in rupees greater than zero.')
+      setError('Enter a valid amount greater than zero.')
       return
     }
 
@@ -151,6 +159,7 @@ export default function ExpenseComposer({
       title: form.title.trim(),
       description: form.description.trim(),
       amount: Number(numericAmount.toFixed(2)),
+      category: form.category,
       paidByUserId: form.paidByUserId,
       participantUserIds: form.participantUserIds,
       splitType: form.splitType,
@@ -193,10 +202,10 @@ export default function ExpenseComposer({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="section-badge">Add Expense</p>
-            <h3 className="mt-4 text-3xl font-semibold text-slate-900">Add a new kharcha</h3>
+            <h3 className="mt-4 text-3xl font-semibold text-slate-900">Add a new shared expense</h3>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Choose the payer, participants, and whether this expense should split equally
-              or by custom shares.
+              Capture the payer, category, participants, and whether the split should be
+              equal or custom.
             </p>
           </div>
 
@@ -219,7 +228,7 @@ export default function ExpenseComposer({
             name="description"
             value={form.description}
             onChange={handleFieldChange}
-            placeholder="Optional note, e.g. Friday dinner or monthly Wi-Fi bill"
+            placeholder="Optional note, for example airport cabs or monthly Wi-Fi bill"
             textarea
             className="md:col-span-2"
           />
@@ -233,6 +242,22 @@ export default function ExpenseComposer({
             onChange={handleFieldChange}
             placeholder="0.00"
           />
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-semibold text-slate-700">Category</span>
+            <select
+              className="w-full rounded-2xl border border-slate-200 bg-white/94 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary/30 focus:ring-2 focus:ring-primary/18"
+              name="category"
+              onChange={handleFieldChange}
+              value={form.category}
+            >
+              {expenseCategoryOptions.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <label className="block">
             <span className="mb-2 block text-sm font-semibold text-slate-700">Paid by</span>
@@ -316,7 +341,7 @@ export default function ExpenseComposer({
                             </div>
                           ) : (
                             <p className="mt-3 text-sm font-medium text-primary">
-                              {formatCurrency(sharePreview)}
+                              {formatCurrency(sharePreview, currency)}
                             </p>
                           )
                         ) : null}
@@ -328,7 +353,8 @@ export default function ExpenseComposer({
             </div>
             {form.splitType === 'custom' ? (
               <p className="mt-3 text-sm text-slate-500">
-                Custom total: {formatCurrency(customSplitTotal)} of {formatCurrency(form.amount || 0)}
+                Custom total: {formatCurrency(customSplitTotal, currency)} of{' '}
+                {formatCurrency(form.amount || 0, currency)}
               </p>
             ) : null}
           </div>
@@ -338,6 +364,21 @@ export default function ExpenseComposer({
               {error}
             </div>
           ) : null}
+
+          <div className="md:col-span-2 rounded-[24px] border border-slate-200/70 bg-slate-50/70 px-4 py-4">
+            <div className="flex items-start gap-3">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Icon name="analytics" size={18} />
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-slate-900">This expense updates live analytics</p>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  Category breakdown, member balances, and settlement suggestions refresh
+                  after the expense is recorded.
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="md:col-span-2 flex flex-col gap-3 sm:flex-row sm:justify-end">
             <Button type="button" variant="secondary" onClick={onClose}>

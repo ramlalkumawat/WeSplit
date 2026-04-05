@@ -1,4 +1,5 @@
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const supportedCurrencies = new Set(['INR', 'USD', 'EUR', 'GBP', 'AED', 'SGD'])
 
 const parseMemberEmails = (value) =>
   value
@@ -6,11 +7,12 @@ const parseMemberEmails = (value) =>
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean)
 
-export const validateGroupForm = ({ description, memberEmails, name }) => {
+export const validateGroupForm = ({ currency, description, memberEmails, name }) => {
   const errors = {}
   const normalizedName = name.trim()
   const normalizedDescription = description.trim()
   const parsedMemberEmails = parseMemberEmails(memberEmails)
+  const normalizedCurrency = (currency || 'INR').trim().toUpperCase()
 
   if (!normalizedName) {
     errors.name = 'Group name is required.'
@@ -24,6 +26,10 @@ export const validateGroupForm = ({ description, memberEmails, name }) => {
     errors.description = 'Description cannot exceed 220 characters.'
   }
 
+  if (!supportedCurrencies.has(normalizedCurrency)) {
+    errors.currency = 'Please select a supported currency.'
+  }
+
   if (parsedMemberEmails.length > 20) {
     errors.memberEmails = 'You can invite up to 20 members at a time.'
   } else if (parsedMemberEmails.some((email) => !emailPattern.test(email))) {
@@ -32,6 +38,7 @@ export const validateGroupForm = ({ description, memberEmails, name }) => {
 
   return {
     errors,
+    currency: normalizedCurrency,
     memberEmails: parsedMemberEmails,
   }
 }

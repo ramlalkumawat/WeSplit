@@ -1,56 +1,63 @@
 import { Link } from 'react-router-dom'
-import { landingNavItems } from '../../data/landingContent'
+import { footerLinks } from '../../data/landingContent'
 import BrandMark from '../layout/BrandMark'
+import Icon from '../ui/Icon'
 
 export default function Footer() {
   return (
-    <footer className="border-t border-slate-200/80 bg-white/80 py-10">
-      <div className="page-shell flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+    <footer className="border-t border-slate-200/80 bg-white/84 py-12">
+      <div className="page-shell grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_0.8fr_0.8fr]">
         <div className="max-w-lg">
           <BrandMark interactive={false} muted />
           <p className="mt-4 text-sm leading-7 text-slate-500">
-            Wesplit is designed to make shared money flows feel organized, transparent,
-            and modern across public onboarding and authenticated workspaces.
+            Wesplit gives groups a cleaner way to log shared expenses, understand balances,
+            and settle with confidence. Built for travel, homes, teams, and every money
+            conversation that deserves better clarity.
           </p>
         </div>
 
-        <div className="flex flex-col gap-6 sm:flex-row sm:gap-12">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.24em] text-slate-400">
-              Product
-            </p>
-            <div className="mt-4 space-y-3">
-              {landingNavItems.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="block text-sm text-slate-600 transition hover:text-slate-950"
-                >
-                  {item.label}
-                </a>
-              ))}
-            </div>
+        <div>
+          <p className="text-sm font-bold uppercase tracking-[0.24em] text-slate-400">Product</p>
+          <div className="mt-4 space-y-3">
+            {footerLinks.product.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="block text-sm text-slate-600 transition hover:text-slate-950"
+              >
+                {item.label}
+              </a>
+            ))}
           </div>
+        </div>
 
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.24em] text-slate-400">
-              Access
-            </p>
-            <div className="mt-4 space-y-3">
-              <Link className="block text-sm text-slate-600 transition hover:text-slate-950" to="/login">
-                Login
+        <div>
+          <p className="text-sm font-bold uppercase tracking-[0.24em] text-slate-400">Access</p>
+          <div className="mt-4 space-y-3">
+            {footerLinks.access.map((item) => (
+              <Link
+                key={item.href}
+                className="block text-sm text-slate-600 transition hover:text-slate-950"
+                to={item.href}
+              >
+                {item.label}
               </Link>
-              <Link className="block text-sm text-slate-600 transition hover:text-slate-950" to="/signup">
-                Signup
-              </Link>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="page-shell mt-8 border-t border-slate-200 pt-6 text-sm text-slate-500">
+      <div className="page-shell mt-10 flex flex-col gap-4 border-t border-slate-200 pt-6 text-sm text-slate-500 lg:flex-row lg:items-center lg:justify-between">
         <p>Designed & Developed by Ramlal Kumawat</p>
-        <p className="mt-2">Instagram: @yourhandle</p>
+        <a
+          className="inline-flex items-center gap-2 font-semibold text-slate-700 transition hover:text-primary"
+          href="https://instagram.com/ramlalkumawat"
+          rel="noreferrer"
+          target="_blank"
+        >
+          <Icon name="spark" size={16} />
+          Instagram / @ramlalkumawat
+        </a>
       </div>
     </footer>
   )

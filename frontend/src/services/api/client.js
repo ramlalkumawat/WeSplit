@@ -1,15 +1,16 @@
 import axios from 'axios'
 import { clearStoredToken, getStoredToken } from '../../utils/authStorage'
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api')
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+const CSRF_COOKIE_NAME = import.meta.env.VITE_CSRF_COOKIE_NAME || 'wesplit_csrf'
+const SAFE_HTTP_METHODS = new Set(['get', 'head', 'options'])
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 })
 
 const buildApiError = (error) => {
@@ -29,11 +30,52 @@ const buildApiError = (error) => {
   return normalizedError
 }
 
-apiClient.interceptors.request.use((config) => {
+const readCookie = (cookieName) => {
+  if (typeof document === 'undefined') {
+    return ''
+  }
+
+  const escapedCookieName = cookieName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const match = document.cookie.match(new RegExp(`(?:^|; )${escapedCookieName}=([^;]*)`))
+
+  return match ? decodeURIComponent(match[1]) : ''
+}
+
+export function getCsrfToken() {
+  return readCookie(CSRF_COOKIE_NAME)
+}
+
+export async function ensureCsrfToken() {
+  const existingToken = getCsrfToken()
+
+  if (existingToken) {
+    return existingToken
+  }
+
+  const response = await apiClient.get('/auth/csrf-token')
+  return response.data?.data?.csrfToken || getCsrfToken() || ''
+}
+
+const shouldAttachCsrfHeader = (config) => {
+  const method = String(config.method || 'get').toLowerCase()
+  return !SAFE_HTTP_METHODS.has(method)
+}
+
+apiClient.interceptors.request.use(async (config) => {
+  config.headers = config.headers || {}
+
   const token = getStoredToken()
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+  }
+
+  if (shouldAttachCsrfHeader(config)) {
+    const csrfToken = getCsrfToken() || (await ensureCsrfToken())
+
+    if (csrfToken) {
+      config.headers['x-csrf-token'] = csrfToken
+    }
   }
 
   return config

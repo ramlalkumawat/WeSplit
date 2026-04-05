@@ -8,6 +8,8 @@ const groupService = {
     extractData(await apiClient.post(`/groups/${groupId}/members`, payload)),
   removeMember: async (groupId, memberId) =>
     extractData(await apiClient.delete(`/groups/${groupId}/members/${memberId}`)),
+  createSettlement: async (groupId, payload) =>
+    extractData(await apiClient.post(`/groups/${groupId}/settlements`, payload)),
   getSettlements: async (groupId) =>
     extractData(await apiClient.get(`/groups/${groupId}/settlements`)),
 }

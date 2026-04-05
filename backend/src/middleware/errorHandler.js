@@ -1,7 +1,36 @@
+const { getDatabaseUnavailableDetails } = require('../config/database')
+
+const isDatabaseConnectivityError = (err) => {
+  const message = err?.message || ''
+
+  return (
+    err?.name === 'MongooseServerSelectionError' ||
+    err?.name === 'MongoServerSelectionError' ||
+    err?.name === 'MongoNetworkError' ||
+    err?.name === 'MongoTopologyClosedError' ||
+    err?.name === 'MongoNotConnectedError' ||
+    message.includes('bufferCommands = false') ||
+    message.includes('buffering timed out') ||
+    message.includes('querySrv') ||
+    message.includes('ECONNREFUSED') ||
+    message.includes('ETIMEOUT') ||
+    message.includes('Server selection timed out')
+  )
+}
+
 const errorHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500
   let message = err.message || 'Internal server error'
   let details = err.details || null
+
+  if (isDatabaseConnectivityError(err)) {
+    statusCode = 503
+    message = 'Database is temporarily unavailable. Please try again shortly.'
+    details = {
+      database: getDatabaseUnavailableDetails(),
+      retryable: true,
+    }
+  }
 
   if (err.name === 'CastError') {
     statusCode = 404
@@ -32,6 +61,7 @@ const errorHandler = (err, req, res, next) => {
   }
 
   if (process.env.NODE_ENV !== 'test') {
+    console.error(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} -> ${statusCode}`)
     console.error(err)
   }
 

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
+const { bcryptSaltRounds } = require('../config/security')
 
 const userSchema = new mongoose.Schema(
   {
@@ -23,7 +24,8 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, 'Please add a password'],
-      minlength: [6, 'Password must be at least 6 characters'],
+      minlength: [8, 'Password must be at least 8 characters'],
+      maxlength: [128, 'Password cannot exceed 128 characters'],
       select: false, // Don't include password in query results by default
     },
   },
@@ -37,7 +39,9 @@ userSchema.pre('save', async function (next) {
     return next()
   }
 
-  const salt = await bcrypt.genSalt(12)
+  const safeSaltRounds =
+    Number.isFinite(bcryptSaltRounds) && bcryptSaltRounds >= 10 ? bcryptSaltRounds : 12
+  const salt = await bcrypt.genSalt(safeSaltRounds)
   this.password = await bcrypt.hash(this.password, salt)
   return next()
 })

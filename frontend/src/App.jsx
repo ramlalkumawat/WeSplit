@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage'
 import GroupsPage from './pages/GroupsPage'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
+import OnboardingPage from './pages/OnboardingPage'
 import SignupPage from './pages/SignupPage'
 
 function ProtectedAppLayout() {
@@ -30,6 +31,7 @@ function App() {
         </Route>
         <Route element={<ProtectedRoute />}>
           <Route element={<ProtectedAppLayout />}>
+            <Route path="/onboarding" element={<OnboardingPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/groups" element={<GroupsPage />} />
             <Route path="/groups/:groupId" element={<GroupsPage />} />

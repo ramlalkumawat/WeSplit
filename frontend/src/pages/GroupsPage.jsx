@@ -4,11 +4,18 @@ import ExpenseComposer from '../components/dashboard/ExpenseComposer'
 import GroupSidebar from '../components/dashboard/GroupSidebar'
 import GroupWorkspace from '../components/dashboard/GroupWorkspace'
 import OverviewCards from '../components/dashboard/OverviewCards'
+import SettlementComposer from '../components/dashboard/SettlementComposer'
+import PageMeta from '../components/seo/PageMeta'
 import Button from '../components/ui/Button'
 import Panel from '../components/ui/Panel'
 import { getButtonClasses } from '../components/ui/buttonStyles'
 import { useAuth } from '../hooks/useAuth'
 import { useDashboardData } from '../hooks/useDashboardData'
+import {
+  buildGroupWhatsAppShareText,
+  buildSettlementReminderText,
+  shareMessageOnWhatsApp,
+} from '../utils/whatsappShare'
 import {
   normalizeMemberEmail,
   validateGroupForm,
@@ -28,7 +35,9 @@ export default function GroupsPage() {
     isLoadingGroups,
     isMutating,
     overview,
+    recordSettlement,
     removeMember,
+    setFeedback,
     selectedGroupDetail,
     selectedGroupId,
     setSelectedGroupId,
@@ -36,12 +45,15 @@ export default function GroupsPage() {
   const [groupForm, setGroupForm] = useState({
     name: '',
     description: '',
+    currency: 'INR',
     memberEmails: '',
   })
   const [groupErrors, setGroupErrors] = useState({})
   const [memberEmail, setMemberEmail] = useState('')
   const [memberError, setMemberError] = useState('')
   const [isExpenseComposerOpen, setIsExpenseComposerOpen] = useState(false)
+  const [isSettlementComposerOpen, setIsSettlementComposerOpen] = useState(false)
+  const [selectedSettlementId, setSelectedSettlementId] = useState('')
 
   useEffect(() => {
     if (groupId && groupId !== selectedGroupId) {
@@ -93,6 +105,7 @@ export default function GroupsPage() {
     try {
       const data = await createGroup({
         description: groupForm.description.trim(),
+        currency: validation.currency,
         memberEmails: validation.memberEmails,
         name: groupForm.name.trim(),
       })
@@ -101,6 +114,7 @@ export default function GroupsPage() {
       setGroupForm({
         name: '',
         description: '',
+        currency: 'INR',
         memberEmails: '',
       })
       navigate(`/groups/${data.group.id}`)
@@ -149,17 +163,73 @@ export default function GroupsPage() {
     navigate(`/groups/${nextGroupId}`)
   }
 
+  const handleOpenSettlementComposer = (settlementId) => {
+    setSelectedSettlementId(settlementId || selectedGroupDetail?.settlements?.[0]?.id || '')
+    setIsSettlementComposerOpen(true)
+  }
+
+  const handleShareResult = async (message, successMessage) => {
+    try {
+      const result = await shareMessageOnWhatsApp(message)
+
+      setFeedback({
+        type: 'success',
+        message:
+          result.status === 'copied'
+            ? 'WhatsApp popup was blocked, so the message was copied for you to paste manually.'
+            : successMessage,
+      })
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        message: error.message,
+      })
+    }
+  }
+
+  const handleShareGroupSummary = async () => {
+    await handleShareResult(
+      buildGroupWhatsAppShareText(selectedGroupDetail),
+      'WhatsApp share opened with the latest split summary and group link.',
+    )
+  }
+
+  const handleShareSettlementReminder = async (settlementId) => {
+    const settlement = selectedGroupDetail?.settlements?.find((item) => item.id === settlementId)
+
+    if (!settlement) {
+      setFeedback({
+        type: 'error',
+        message: 'That settlement reminder is no longer available. Refresh and try again.',
+      })
+      return
+    }
+
+    await handleShareResult(
+      buildSettlementReminderText({
+        detail: selectedGroupDetail,
+        settlement,
+      }),
+      'WhatsApp reminder opened with the split amount and group link.',
+    )
+  }
+
   return (
     <div className="space-y-8">
+      <PageMeta
+        description="Manage shared groups, add expenses, review balances, and record settlements inside the Wesplit workspace."
+        title="Groups Workspace | Wesplit"
+      />
+
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_360px]">
         <Panel className="p-7 md:p-8">
           <p className="section-badge">Groups Workspace</p>
           <h1 className="mt-6 text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">
-            Manage every group from one focused operating view.
+            Run every group from one focused shared-finance workspace.
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600">
-            Create groups, invite members, review live balances, and add fresh expenses
-            without leaving the protected product workspace.
+            Create groups, invite members, review analytics, add expenses, and record
+            completed settlements without leaving the protected product flow.
           </p>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -169,6 +239,15 @@ export default function GroupsPage() {
             {selectedGroupDetail?.group ? (
               <Button onClick={() => setIsExpenseComposerOpen(true)}>Add Expense</Button>
             ) : null}
+            {selectedGroupDetail?.group ? (
+              <Button
+                disabled={!selectedGroupDetail?.settlements?.length}
+                onClick={() => handleOpenSettlementComposer('')}
+                variant="secondary"
+              >
+                Record Settlement
+              </Button>
+            ) : null}
           </div>
         </Panel>
 
@@ -176,9 +255,9 @@ export default function GroupsPage() {
           <p className="eyebrow">Workspace notes</p>
           <div className="mt-5 space-y-4">
             {[
-              'Route-protected pages stay behind JWT authentication.',
-              'Group detail selection works cleanly across desktop and mobile.',
-              'Create, invite, and expense actions now have clearer validation states.',
+              'Group balances now reflect both expenses and recorded settlements.',
+              'Category-aware analytics explain where shared spend is coming from.',
+              'Create, invite, expense, and settlement flows all share loading and validation states.',
             ].map((note) => (
               <div
                 key={note}
@@ -215,7 +294,10 @@ export default function GroupsPage() {
           memberError={memberError}
           onMemberEmailChange={handleMemberChange}
           onOpenExpenseComposer={() => setIsExpenseComposerOpen(true)}
+          onOpenSettlementComposer={handleOpenSettlementComposer}
           onRemoveMember={handleRemoveMember}
+          onShareGroupSummary={handleShareGroupSummary}
+          onShareSettlementReminder={handleShareSettlementReminder}
           onSubmitMember={handleAddMember}
         />
       </main>
@@ -223,11 +305,25 @@ export default function GroupsPage() {
       <ExpenseComposer
         key={`${selectedGroupDetail?.group?.id || 'group'}-${isExpenseComposerOpen ? 'open' : 'closed'}`}
         currentUserId={user?.id}
+        currency={selectedGroupDetail?.group?.currency || 'INR'}
         isOpen={isExpenseComposerOpen}
         isSubmitting={isMutating}
         members={selectedGroupDetail?.group?.members || []}
         onClose={() => setIsExpenseComposerOpen(false)}
         onSubmit={addExpense}
+      />
+
+      <SettlementComposer
+        key={`${selectedGroupDetail?.group?.id || 'group'}-${selectedSettlementId || 'default'}-${
+          isSettlementComposerOpen ? 'open' : 'closed'
+        }`}
+        currency={selectedGroupDetail?.group?.currency || 'INR'}
+        initialSuggestionId={selectedSettlementId}
+        isOpen={isSettlementComposerOpen}
+        isSubmitting={isMutating}
+        onClose={() => setIsSettlementComposerOpen(false)}
+        onSubmit={recordSettlement}
+        suggestions={selectedGroupDetail?.settlements || []}
       />
     </div>
   )

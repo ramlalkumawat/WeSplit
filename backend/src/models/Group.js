@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { SUPPORTED_CURRENCIES } = require('../constants/finance')
 
 const groupMemberSchema = new mongoose.Schema(
   {
@@ -39,6 +40,7 @@ const groupSchema = new mongoose.Schema(
     currency: {
       type: String,
       default: 'INR',
+      enum: SUPPORTED_CURRENCIES,
       uppercase: true,
       maxlength: 3,
     },

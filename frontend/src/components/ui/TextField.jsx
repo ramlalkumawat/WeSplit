@@ -16,7 +16,7 @@ export default function TextField({
 }) {
   const fieldId = id || name
   const hintId = `${fieldId}-hint`
-  const sharedClasses = `w-full rounded-2xl border bg-white/92 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-primary/30 focus:ring-2 focus:ring-primary/18 ${error ? 'border-danger/25 focus:border-danger/30 focus:ring-danger/12' : 'border-slate-200'} ${inputClassName}`.trim()
+  const sharedClasses = `w-full rounded-2xl border bg-white/94 px-4 py-3 text-sm text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] outline-none transition placeholder:text-slate-400 focus:border-primary/30 focus:ring-2 focus:ring-primary/18 ${error ? 'border-danger/25 focus:border-danger/30 focus:ring-danger/12' : 'border-slate-200'} ${inputClassName}`.trim()
 
   return (
     <label className={`block ${className}`.trim()}>

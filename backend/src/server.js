@@ -1,8 +1,8 @@
 require('dotenv').config()
+const { connectDB, getDatabaseStatus } = require('./config/database')
 const app = require('./app')
-const connectDB = require('./config/database')
 
-const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET']
+const requiredEnvVars = ['JWT_SECRET']
 const missingEnvVars = requiredEnvVars.filter((key) => !process.env[key])
 
 if (missingEnvVars.length > 0) {
@@ -15,12 +15,13 @@ let server
 
 const startServer = async () => {
   try {
-    await connectDB()
-
     server = app.listen(PORT, () => {
       console.log(
         `Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`,
       )
+
+      const database = getDatabaseStatus()
+      console.log(`MongoDB startup state: ${database.state}`)
     })
 
     server.on('error', (error) => {
@@ -33,6 +34,10 @@ const startServer = async () => {
       }
 
       process.exit(1)
+    })
+
+    void connectDB().catch((error) => {
+      console.error(`MongoDB background connection loop failed: ${error.message}`)
     })
   } catch (error) {
     console.error(`Server bootstrap error: ${error.message}`)

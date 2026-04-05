@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
+import { AuthInsightVisual } from '../graphics/ProductVisuals'
 import BrandMark from '../layout/BrandMark'
 import Panel from '../ui/Panel'
+import Icon from '../ui/Icon'
 
 export default function AuthSplitLayout({
   badge,
@@ -32,11 +34,13 @@ export default function AuthSplitLayout({
             <div className="flex h-full flex-col justify-between gap-10">
               <div>
                 <p className="section-badge">{badge}</p>
-                <h1 className="mt-6 max-w-xl text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">
+                <h1 className="mt-6 max-w-xl text-balance text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">
                   {title}
                 </h1>
                 <p className="mt-4 max-w-xl text-base leading-8 text-slate-600">{description}</p>
               </div>
+
+              <AuthInsightVisual />
 
               <div className="grid gap-3">
                 {highlights.map((highlight) => (
@@ -44,8 +48,15 @@ export default function AuthSplitLayout({
                     key={highlight.title}
                     className="rounded-[26px] border border-white/70 bg-white/86 p-5 shadow-soft"
                   >
-                    <p className="text-sm font-semibold text-slate-900">{highlight.title}</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-500">{highlight.description}</p>
+                    <div className="flex items-start gap-3">
+                      <span className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                        <Icon name="check" size={16} />
+                      </span>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">{highlight.title}</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-500">{highlight.description}</p>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

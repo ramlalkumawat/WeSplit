@@ -64,7 +64,7 @@ function authFormReducer(state, action) {
   }
 }
 
-export function useAuthForm({ mode, onSubmit }) {
+export function useAuthForm({ mode, onSubmit, onSuccess }) {
   const [state, dispatch] = useReducer(authFormReducer, mode, buildInitialState)
 
   const validate = mode === 'signup' ? validateSignupValues : validateLoginValues
@@ -98,6 +98,7 @@ export function useAuthForm({ mode, onSubmit }) {
     try {
       await onSubmit(nextValues)
       dispatch({ type: 'SUBMIT_SUCCESS' })
+      onSuccess?.()
     } catch (error) {
       dispatch({
         type: 'SUBMIT_FAILURE',

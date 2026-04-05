@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import Button from '../ui/Button'
+import Icon from '../ui/Icon'
 import TextField from '../ui/TextField'
 
 export default function AuthForm({
@@ -19,12 +20,14 @@ export default function AuthForm({
       <div>
         <p className="section-badge">{isLogin ? 'Login' : 'Create Account'}</p>
         <h2 className="mt-6 text-3xl font-bold tracking-tight text-slate-950">
-          {isLogin ? 'Welcome back to your finance workspace.' : 'Start your team-friendly billing workflow.'}
+          {isLogin
+            ? 'Welcome back to your shared-finance workspace.'
+            : 'Start with a cleaner shared-expense workflow.'}
         </h2>
         <p className="mt-3 text-sm leading-7 text-slate-500">
           {isLogin
-            ? 'Access your balances, groups, and settle-up suggestions with a secure JWT session.'
-            : 'Create your Wesplit account and bring rent, travel, food, and team spends into one polished workspace.'}
+            ? 'Access balances, activity history, and settle-up actions with a secure JWT session.'
+            : 'Create your account to launch groups, capture expenses, and move toward clear balances faster.'}
         </p>
       </div>
 
@@ -55,7 +58,11 @@ export default function AuthForm({
         <TextField
           autoComplete={isLogin ? 'current-password' : 'new-password'}
           error={errors.password}
-          helpText={isLogin ? 'Use the same password you set during signup.' : 'Use at least 8 characters for your secure account password.'}
+          helpText={
+            isLogin
+              ? 'Use the same password you created during signup.'
+              : 'Use at least 8 characters for a secure account password.'
+          }
           label="Password"
           name="password"
           onChange={handleChange}
@@ -79,6 +86,7 @@ export default function AuthForm({
 
         <Button className="w-full" loading={isSubmitting} type="submit">
           {isLogin ? 'Sign In' : 'Create Account'}
+          <Icon name="arrowUpRight" size={18} />
         </Button>
       </form>
 

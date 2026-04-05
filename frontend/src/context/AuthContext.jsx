@@ -68,8 +68,15 @@ export function AuthProvider({ children }) {
   }, [])
 
   const completeAuth = (payload) => {
-    setStoredToken(payload.token)
-    setToken(payload.token)
+    const nextToken = payload.accessToken || payload.token || ''
+
+    if (nextToken) {
+      setStoredToken(nextToken)
+    } else {
+      clearStoredToken()
+    }
+
+    setToken(nextToken)
     setUser(payload.user)
     setIsBootstrapping(false)
   }

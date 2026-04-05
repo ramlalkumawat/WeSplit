@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { landingNavItems } from '../../data/landingContent'
 import BrandMark from '../layout/BrandMark'
+import Icon from '../ui/Icon'
 import { getButtonClasses } from '../ui/buttonStyles'
 
 export default function LandingNavbar() {
@@ -10,7 +11,7 @@ export default function LandingNavbar() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/70 bg-white/75 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-white/70 bg-white/78 backdrop-blur-xl">
       <div className="page-shell flex items-center justify-between gap-4 py-4">
         <BrandMark />
 
@@ -35,6 +36,7 @@ export default function LandingNavbar() {
             to={isAuthenticated ? '/dashboard' : '/signup'}
           >
             {isAuthenticated ? 'Open Dashboard' : 'Start Free'}
+            <Icon name="arrowUpRight" size={18} />
           </Link>
         </div>
 
@@ -79,6 +81,7 @@ export default function LandingNavbar() {
               to={isAuthenticated ? '/dashboard' : '/signup'}
             >
               {isAuthenticated ? 'Open Dashboard' : 'Start Free'}
+              <Icon name="arrowUpRight" size={18} />
             </Link>
           </div>
         </div>
