@@ -1,4 +1,5 @@
 const { getDatabaseUnavailableDetails } = require('../config/database')
+const { nodeEnv } = require('../config/env')
 
 const isDatabaseConnectivityError = (err) => {
   const message = err?.message || ''
@@ -60,7 +61,7 @@ const errorHandler = (err, req, res, next) => {
     message = 'Authentication token has expired'
   }
 
-  if (process.env.NODE_ENV !== 'test') {
+  if (nodeEnv !== 'test') {
     console.error(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} -> ${statusCode}`)
     console.error(err)
   }
@@ -74,7 +75,7 @@ const errorHandler = (err, req, res, next) => {
     response.details = details
   }
 
-  if (process.env.NODE_ENV === 'development') {
+  if (nodeEnv === 'development') {
     response.stack = err.stack
   }
 

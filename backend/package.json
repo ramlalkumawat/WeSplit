@@ -2,6 +2,7 @@
   "name": "wesplit",
   "version": "1.0.0",
   "description": "Expense sharing web app backend",
+  "packageManager": "npm@10.8.2",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

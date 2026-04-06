@@ -1,7 +1,8 @@
 const mongoose = require('mongoose')
+const { isProduction } = require('./env')
 
 const DEFAULT_RETRY_DELAY_MS = Number(process.env.MONGODB_RETRY_DELAY_MS || 5000)
-const DEFAULT_MAX_RETRIES = Number(process.env.MONGODB_MAX_RETRIES || 0)
+const DEFAULT_MAX_RETRIES = Number(process.env.MONGODB_MAX_RETRIES || (isProduction ? 5 : 0))
 const DEFAULT_SERVER_SELECTION_TIMEOUT_MS = Number(
   process.env.MONGODB_SERVER_SELECTION_TIMEOUT_MS || 5000,
 )
@@ -271,18 +272,22 @@ const connectDB = async ({
       const { source, uri } = resolveMongoUri()
 
       if (!uri) {
+        const configurationError = new Error(
+          'MONGODB_URI is not configured. Set MONGODB_URI or MONGODB_DIRECT_URI to enable database-backed routes.',
+        )
+        configurationError.name = 'ConfigurationError'
+
         setConnectionStatus({
           lastError: {
-            message:
-              'MONGODB_URI is not configured. Set MONGODB_URI or MONGODB_DIRECT_URI to enable database-backed routes.',
-            name: 'ConfigurationError',
+            message: configurationError.message,
+            name: configurationError.name,
           },
           nextRetryAt: null,
           state: 'misconfigured',
           uri: null,
         })
-        console.error(connectionStatus.lastError.message)
-        return null
+        console.error(configurationError.message)
+        throw configurationError
       }
 
       attempt += 1
@@ -300,7 +305,7 @@ const connectDB = async ({
         )
 
         await mongoose.connect(uri, {
-          autoIndex: process.env.NODE_ENV !== 'production',
+          autoIndex: !isProduction,
           family: 4,
           serverSelectionTimeoutMS,
         })

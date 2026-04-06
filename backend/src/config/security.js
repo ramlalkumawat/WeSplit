@@ -1,4 +1,10 @@
 const ms = require('ms')
+const {
+  clientUrls: allowedOrigins,
+  isProduction,
+  jwtAccessSecret,
+  jwtRefreshSecret,
+} = require('./env')
 
 const normalizeSameSite = (value) => {
   const normalizedValue = String(value || 'lax').trim().toLowerCase()
@@ -31,12 +37,6 @@ const getBooleanEnv = (value, fallbackValue = false) => {
   return String(value).trim().toLowerCase() === 'true'
 }
 
-const allowedOrigins = (process.env.CLIENT_URLS || '')
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean)
-
-const isProduction = process.env.NODE_ENV === 'production'
 const accessTokenExpiresIn = process.env.JWT_ACCESS_EXPIRE || '15m'
 const refreshTokenExpiresIn = process.env.JWT_REFRESH_EXPIRE || '7d'
 const refreshTokenMaxAgeMs = parseDurationMs(refreshTokenExpiresIn, '7d')
@@ -47,9 +47,8 @@ const cookieSameSite = normalizeSameSite(process.env.COOKIE_SAME_SITE)
 const trustProxy = getBooleanEnv(process.env.TRUST_PROXY, isProduction)
 const bcryptSaltRounds = Number(process.env.BCRYPT_SALT_ROUNDS || 12)
 
-const accessTokenSecret = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET
-const refreshTokenSecret =
-  process.env.JWT_REFRESH_SECRET || (isProduction ? undefined : process.env.JWT_SECRET)
+const accessTokenSecret = jwtAccessSecret
+const refreshTokenSecret = jwtRefreshSecret
 
 module.exports = {
   accessTokenExpiresIn,

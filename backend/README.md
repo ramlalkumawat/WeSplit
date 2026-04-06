@@ -91,7 +91,7 @@ npm run dev
 npm start
 ```
 
-The server will start on `http://localhost:5000` (or the port specified in `.env`).
+The server binds to `0.0.0.0` and uses `process.env.PORT` (default `5000`).
 
 ## API Endpoints
 
@@ -156,12 +156,16 @@ The server will start on `http://localhost:5000` (or the port specified in `.env
   ```
 
 #### Health Check
+- **GET** `/`
+- **Response:** `200 OK`
+
+#### Detailed Health Check
 - **GET** `/api/health`
 - **Response:**
   ```json
   {
-    "status": "OK",
-    "message": "Server is running"
+    "success": true,
+    "message": "Server is healthy"
   }
   ```
 

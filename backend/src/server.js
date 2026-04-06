@@ -1,43 +1,37 @@
-require('dotenv').config()
 const { connectDB, getDatabaseStatus } = require('./config/database')
+const { getEnvWarnings, host, nodeEnv, port, validateRequiredEnv } = require('./config/env')
 const app = require('./app')
-
-const requiredEnvVars = ['JWT_SECRET']
-const missingEnvVars = requiredEnvVars.filter((key) => !process.env[key])
-
-if (missingEnvVars.length > 0) {
-  throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`)
-}
-
-const PORT = process.env.PORT || 5000
 
 let server
 
 const startServer = async () => {
   try {
-    server = app.listen(PORT, () => {
-      console.log(
-        `Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`,
-      )
+    validateRequiredEnv()
+    getEnvWarnings().forEach((warning) => {
+      console.warn(`Configuration warning: ${warning}`)
+    })
 
-      const database = getDatabaseStatus()
-      console.log(`MongoDB startup state: ${database.state}`)
+    await connectDB()
+
+    const database = getDatabaseStatus()
+    console.log(`MongoDB startup state: ${database.state}`)
+
+    server = app.listen(port, host, () => {
+      console.log(
+        `Server running in ${nodeEnv} mode on ${host}:${port}`,
+      )
     })
 
     server.on('error', (error) => {
       if (error.code === 'EADDRINUSE') {
-        console.error(`Port ${PORT} is already in use. Stop the existing process or change PORT.`)
+        console.error(`Port ${port} is already in use. Stop the existing process or change PORT.`)
       } else if (error.code === 'EACCES') {
-        console.error(`Permission denied while binding to port ${PORT}.`)
+        console.error(`Permission denied while binding to ${host}:${port}.`)
       } else {
         console.error(`Server listen error: ${error.message}`)
       }
 
       process.exit(1)
-    })
-
-    void connectDB().catch((error) => {
-      console.error(`MongoDB background connection loop failed: ${error.message}`)
     })
   } catch (error) {
     console.error(`Server bootstrap error: ${error.message}`)
