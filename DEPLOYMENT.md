@@ -25,6 +25,8 @@ This repo is set up to deploy as a single Node.js service:
 - `CLIENT_URLS=https://your-domain.com,https://app.your-domain.com`
 - `JWT_ACCESS_EXPIRE=15m`
 - `JWT_REFRESH_EXPIRE=7d`
+- `COOKIE_SAME_SITE=lax`
+- `COOKIE_SECURE=false`
 - `MONGODB_RETRY_DELAY_MS=5000`
 - `MONGODB_MAX_RETRIES=5`
 - `TRUST_PROXY=true`
@@ -43,7 +45,11 @@ If you deploy frontend and backend separately:
 
 - backend stays on its own Node host
 - frontend must define `VITE_API_BASE_URL=https://api.your-domain.com/api`
+- `VITE_API_URL` is also supported as a fallback alias, but `VITE_API_BASE_URL` is the preferred name
+- if you set only the bare backend origin, for example `https://your-service.onrender.com`, the frontend now normalizes it to `https://your-service.onrender.com/api`
 - backend `CLIENT_URLS` should include the frontend origin, for example `https://app.your-domain.com`
+- for Vercel -> Render deployments, set backend `CLIENT_URLS=https://your-project.vercel.app`, `COOKIE_SAME_SITE=none`, `COOKIE_SECURE=true`, and `TRUST_PROXY=true`
+- if `VITE_API_BASE_URL` is left as `/api` on Vercel, browser requests will go to `https://your-project.vercel.app/api/...` and return 404 unless you add a Vercel rewrite or proxy
 
 ## Package Manager
 

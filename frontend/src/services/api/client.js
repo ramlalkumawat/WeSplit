@@ -1,9 +1,36 @@
 import axios from 'axios'
 import { clearStoredToken, getStoredToken } from '../../utils/authStorage'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+const DEFAULT_API_BASE_PATH = '/api'
+const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL
 const CSRF_COOKIE_NAME = import.meta.env.VITE_CSRF_COOKIE_NAME || 'wesplit_csrf'
 const SAFE_HTTP_METHODS = new Set(['get', 'head', 'options'])
+
+const normalizeApiBaseUrl = (value) => {
+  const rawValue = String(value || '').trim()
+
+  if (!rawValue) {
+    return DEFAULT_API_BASE_PATH
+  }
+
+  if (rawValue.startsWith('/')) {
+    return rawValue.replace(/\/+$/, '') || DEFAULT_API_BASE_PATH
+  }
+
+  try {
+    const url = new URL(rawValue)
+    const normalizedPathname = url.pathname.replace(/\/+$/, '')
+
+    url.pathname =
+      !normalizedPathname || normalizedPathname === '/' ? DEFAULT_API_BASE_PATH : normalizedPathname
+
+    return url.toString().replace(/\/+$/, '')
+  } catch (_error) {
+    return rawValue.replace(/\/+$/, '') || DEFAULT_API_BASE_PATH
+  }
+}
+
+const API_BASE_URL = normalizeApiBaseUrl(RAW_API_BASE_URL)
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
