@@ -134,7 +134,7 @@ export default function GroupSidebar({
           </label>
           <TextField
             error={errors.memberEmails}
-            helpText="Separate multiple email addresses with commas."
+            helpText="Optional. Separate multiple email addresses with commas. If someone has not signed up yet, the group will still be created."
             label="Add members by email"
             name="memberEmails"
             value={form.memberEmails}

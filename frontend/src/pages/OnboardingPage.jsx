@@ -189,7 +189,7 @@ export default function OnboardingPage() {
 
             <TextField
               error={errors.memberEmails}
-              helpText="Separate multiple addresses with commas. Members should already have Wesplit accounts."
+              helpText="Optional. Separate multiple addresses with commas. People without Wesplit accounts will be skipped for now."
               label="Invite members"
               name="memberEmails"
               onChange={handleChange}

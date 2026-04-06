@@ -34,6 +34,7 @@ const normalizeGroupDetail = (data) => ({
   expenses: data.expenses || [],
   settlementRecords: data.settlementRecords || [],
   balances: data.balances || [],
+  missingInviteEmails: data.missingInviteEmails || [],
   settlements: (data.settlements || []).map((settlement, index) => ({
     ...settlement,
     id: settlement.id || `${settlement.fromUser.id}-${settlement.toUser.id}-${index}`,
@@ -280,6 +281,7 @@ export function DashboardDataProvider({ children }) {
 
     try {
       const data = await groupService.createGroup(values)
+      const missingInviteEmails = data.missingInviteEmails || []
 
       dispatch({
         type: 'SET_SELECTED_GROUP_ID',
@@ -290,8 +292,10 @@ export function DashboardDataProvider({ children }) {
         payload: normalizeGroupDetail(data),
       })
       setFeedback({
-        type: 'success',
-        message: 'Group created successfully.',
+        type: missingInviteEmails.length ? 'info' : 'success',
+        message: missingInviteEmails.length
+          ? `Group created successfully. These emails were skipped because they do not have Wesplit accounts yet: ${missingInviteEmails.join(', ')}`
+          : 'Group created successfully.',
       })
       refreshDashboard()
       return data

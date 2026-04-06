@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 const Expense = require('../models/Expense')
 const Group = require('../models/Group')
 const Settlement = require('../models/Settlement')
@@ -112,12 +113,14 @@ const listGroupsForUser = async (userId) => {
     }
   }
 
-  const expenses = await Expense.find({ group: { $in: groups.map((group) => group._id) } })
+  const expenses = await Expense.find({
+    group: mongoose.trusted({ $in: groups.map((group) => group._id) }),
+  })
     .sort({ createdAt: -1 })
     .populate('paidBy', 'name email')
     .populate('participants.user', 'name email')
   const settlementRecords = await Settlement.find({
-    group: { $in: groups.map((group) => group._id) },
+    group: mongoose.trusted({ $in: groups.map((group) => group._id) }),
   })
     .sort({ createdAt: -1 })
     .populate('paidBy', 'name email')
@@ -238,14 +241,12 @@ const createGroup = async ({ name, description, currency, memberEmails }, curren
   )
 
   const additionalMembers = normalizedEmails.length
-    ? await User.find({ email: { $in: normalizedEmails } })
+    ? await User.find({
+        email: mongoose.trusted({ $in: normalizedEmails }),
+      })
     : []
-
-  if (additionalMembers.length !== normalizedEmails.length) {
-    const foundEmails = new Set(additionalMembers.map((user) => user.email.toLowerCase()))
-    const missingEmails = normalizedEmails.filter((email) => !foundEmails.has(email))
-    throw new AppError(`These users were not found: ${missingEmails.join(', ')}`, 404)
-  }
+  const foundEmails = new Set(additionalMembers.map((user) => user.email.toLowerCase()))
+  const missingInviteEmails = normalizedEmails.filter((email) => !foundEmails.has(email))
 
   const group = await Group.create({
     name,
@@ -258,7 +259,12 @@ const createGroup = async ({ name, description, currency, memberEmails }, curren
     ],
   })
 
-  return getGroupDetails(group._id.toString(), currentUser.id)
+  const detail = await getGroupDetails(group._id.toString(), currentUser.id)
+
+  return {
+    ...detail,
+    missingInviteEmails,
+  }
 }
 
 const createSettlement = async (groupId, payload, requesterId) => {
