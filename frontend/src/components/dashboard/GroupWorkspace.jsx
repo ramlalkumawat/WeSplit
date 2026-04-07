@@ -22,9 +22,9 @@ function MemberBalancePill({ amount, currency }) {
 
 function SummaryTile({ label, value, tone = 'text-slate-950', icon }) {
   return (
-    <div className="rounded-[26px] border border-slate-200/70 bg-white/88 p-5 shadow-soft">
+    <div className="min-w-0 rounded-[26px] border border-slate-200/70 bg-white/88 p-5 shadow-soft">
       <div className="flex items-start justify-between gap-4">
-        <div>
+        <div className="min-w-0">
           <p className="text-sm text-slate-500">{label}</p>
           <p className={`mt-3 text-3xl font-semibold ${tone}`}>{value}</p>
         </div>
@@ -39,40 +39,55 @@ function SummaryTile({ label, value, tone = 'text-slate-950', icon }) {
 function MonthlyActivityChart({ currency, items = [] }) {
   const maxValue = Math.max(...items.map((item) => item.activityTotal), 0)
 
-  return (
-    <div className="mt-5">
-      <div className="flex h-52 items-end gap-3">
-        {items.map((item) => {
-          const expenseHeight = maxValue ? (item.expenseTotal / maxValue) * 100 : 0
-          const settlementHeight = maxValue ? (item.settlementTotal / maxValue) * 100 : 0
-
-          return (
-            <div key={item.key} className="flex flex-1 flex-col items-center gap-3">
-              <div className="flex h-40 w-full items-end justify-center gap-2">
-                <div className="flex h-full w-4 items-end rounded-full bg-primary/10">
-                  <div
-                    className="w-full rounded-full bg-primary"
-                    style={{ height: `${Math.max(expenseHeight, 8)}%` }}
-                  />
-                </div>
-                <div className="flex h-full w-4 items-end rounded-full bg-success/10">
-                  <div
-                    className="w-full rounded-full bg-success"
-                    style={{ height: `${Math.max(settlementHeight, item.settlementTotal ? 8 : 0)}%` }}
-                  />
-                </div>
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-semibold text-slate-700">{item.label}</p>
-                <p className="mt-1 text-xs text-slate-500">
-                  {formatCompactCurrency(item.activityTotal, currency)}
-                </p>
-              </div>
-            </div>
-          )
-        })}
+  if (!items.length) {
+    return (
+      <div className="mt-5 rounded-[24px] border border-dashed border-slate-200 bg-slate-50/80 px-4 py-6 text-sm text-slate-500">
+        Add a few expenses or settlements to unlock monthly activity trends.
       </div>
-      <div className="mt-4 flex flex-wrap gap-4 text-xs uppercase tracking-[0.2em] text-slate-400">
+    )
+  }
+
+  return (
+    <div className="mt-5 space-y-4">
+      <div className="-mx-1 overflow-x-auto px-1 pb-2">
+        <div
+          className="grid min-w-[28rem] gap-3 sm:min-w-0"
+          style={{
+            gridTemplateColumns: `repeat(${items.length}, minmax(4.5rem, 1fr))`,
+          }}
+        >
+          {items.map((item) => {
+            const expenseHeight = maxValue ? (item.expenseTotal / maxValue) * 100 : 0
+            const settlementHeight = maxValue ? (item.settlementTotal / maxValue) * 100 : 0
+
+            return (
+              <div key={item.key} className="flex min-w-0 flex-col items-center gap-3">
+                <div className="flex h-40 w-full items-end justify-center gap-2 rounded-[22px] bg-slate-50/80 px-3 py-3">
+                  <div className="flex h-full w-3.5 items-end rounded-full bg-primary/10 sm:w-4">
+                    <div
+                      className="w-full rounded-full bg-primary"
+                      style={{ height: `${Math.max(expenseHeight, 8)}%` }}
+                    />
+                  </div>
+                  <div className="flex h-full w-3.5 items-end rounded-full bg-success/10 sm:w-4">
+                    <div
+                      className="w-full rounded-full bg-success"
+                      style={{ height: `${Math.max(settlementHeight, item.settlementTotal ? 8 : 0)}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="w-full text-center">
+                  <p className="truncate text-sm font-semibold text-slate-700">{item.label}</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {formatCompactCurrency(item.activityTotal, currency)}
+                  </p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-4 text-xs uppercase tracking-[0.2em] text-slate-400">
         <span className="inline-flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-primary" />
           Expenses
@@ -142,10 +157,10 @@ export default function GroupWorkspace({
   }, {})
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <Panel className="p-6 md:p-7">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
-          <div className="max-w-2xl">
+          <div className="max-w-2xl min-w-0">
             <p className="section-badge">Selected Group</p>
             <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">
               {group.name}
@@ -162,8 +177,8 @@ export default function GroupWorkspace({
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Panel className="px-4 py-3">
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap xl:w-auto xl:max-w-[36rem] xl:justify-end">
+            <Panel className="w-full px-4 py-3 sm:flex-1 xl:min-w-[12rem] xl:flex-none">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
                 Last activity
               </p>
@@ -172,6 +187,7 @@ export default function GroupWorkspace({
               </p>
             </Panel>
             <Button
+              className="w-full sm:w-auto"
               disabled={isMutating}
               onClick={onShareGroupSummary}
               variant="secondary"
@@ -179,10 +195,15 @@ export default function GroupWorkspace({
               <Icon name="message" size={18} />
               Share on WhatsApp
             </Button>
-            <Button onClick={onOpenExpenseComposer} disabled={isMutating}>
+            <Button
+              className="relative z-10 w-full sm:w-auto"
+              onClick={onOpenExpenseComposer}
+              disabled={isMutating}
+            >
               Add Expense
             </Button>
             <Button
+              className="w-full sm:w-auto"
               disabled={!settlements.length}
               onClick={() => onOpenSettlementComposer(settlements[0]?.id)}
               variant="secondary"
@@ -218,7 +239,7 @@ export default function GroupWorkspace({
         </div>
       </Panel>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
         <Panel className="p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
@@ -230,15 +251,15 @@ export default function GroupWorkspace({
             </div>
           </div>
 
-          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_1.1fr]">
-            <div className="rounded-[28px] border border-slate-200/70 bg-white/88 p-5">
+          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+            <div className="min-w-0 rounded-[28px] border border-slate-200/70 bg-white/88 p-5">
               <p className="text-sm font-semibold text-slate-700">Category breakdown</p>
               <div className="mt-5 space-y-4">
                 {analytics.categoryBreakdown.length ? (
                   analytics.categoryBreakdown.map((item) => (
                     <div key={item.category}>
-                      <div className="flex items-center justify-between gap-4">
-                        <div>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="min-w-0">
                           <p className="text-sm font-semibold text-slate-900">{item.label}</p>
                           <p className="text-xs text-slate-500">{formatPercentage(item.shareOfSpend)}</p>
                         </div>
@@ -265,7 +286,7 @@ export default function GroupWorkspace({
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-slate-200/70 bg-white/88 p-5">
+            <div className="min-w-0 overflow-hidden rounded-[28px] border border-slate-200/70 bg-white/88 p-5">
               <p className="text-sm font-semibold text-slate-700">Monthly activity</p>
               <MonthlyActivityChart currency={group.currency} items={analytics.monthlyActivity} />
             </div>
@@ -282,6 +303,7 @@ export default function GroupWorkspace({
               </p>
             </div>
             <Button
+              className="w-full sm:w-auto"
               disabled={!settlements.length}
               onClick={() => onOpenSettlementComposer(settlements[0]?.id)}
               variant="secondary"
@@ -311,7 +333,7 @@ export default function GroupWorkspace({
                         {formatCurrency(settlement.amount, group.currency)}
                       </p>
                       <Button
-                        className="px-4 py-2.5"
+                        className="w-full px-4 py-2.5 sm:w-auto"
                         onClick={() => onShareSettlementReminder(settlement.id)}
                         variant="ghost"
                       >
@@ -319,7 +341,7 @@ export default function GroupWorkspace({
                         WhatsApp reminder
                       </Button>
                       <Button
-                        className="px-4 py-2.5"
+                        className="w-full px-4 py-2.5 sm:w-auto"
                         onClick={() => onOpenSettlementComposer(settlement.id)}
                         variant="secondary"
                       >
@@ -345,7 +367,7 @@ export default function GroupWorkspace({
                     key={record.id}
                     className="rounded-[24px] border border-slate-200/70 bg-slate-50/80 p-4"
                   >
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">
                           {record.paidBy.name} paid {record.receivedBy.name}
@@ -354,7 +376,7 @@ export default function GroupWorkspace({
                           {record.note || 'Settlement recorded without an additional note.'}
                         </p>
                       </div>
-                      <div className="text-right">
+                        <div className="text-left sm:text-right">
                         <p className="text-sm font-semibold text-slate-900">
                           {formatCurrency(record.amount, group.currency)}
                         </p>
@@ -371,7 +393,7 @@ export default function GroupWorkspace({
         </Panel>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_1.05fr]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
         <Panel className="p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
@@ -413,7 +435,7 @@ export default function GroupWorkspace({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <MemberBalancePill
                       amount={financialEntry?.balance || 0}
                       currency={group.currency}
@@ -423,7 +445,7 @@ export default function GroupWorkspace({
                     member.id !== currentUserId ? (
                       <Button
                         variant="danger"
-                        className="px-3 py-2 text-sm"
+                        className="w-full px-3 py-2 text-sm sm:w-auto"
                         onClick={() => onRemoveMember(member.id)}
                       >
                         Remove
@@ -446,7 +468,12 @@ export default function GroupWorkspace({
                 onChange={onMemberEmailChange}
                 placeholder="friend@gmail.com"
               />
-              <Button type="submit" disabled={isMutating} loading={isMutating}>
+              <Button
+                type="submit"
+                className="w-full sm:w-auto"
+                disabled={isMutating}
+                loading={isMutating}
+              >
                 Add Member
               </Button>
             </form>

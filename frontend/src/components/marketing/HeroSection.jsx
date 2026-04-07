@@ -10,7 +10,7 @@ export default function HeroSection() {
 
   return (
     <section className="page-shell pb-18 pt-10 md:pb-24 md:pt-16">
-      <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.06fr)_minmax(380px,0.94fr)]">
+      <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)]">
         <div className="animate-fade-up">
           <p className="section-badge">Expense sharing with real financial clarity</p>
           <h1 className="mt-6 max-w-4xl text-balance text-5xl font-extrabold tracking-tight text-slate-950 md:text-6xl xl:text-[4.45rem] xl:leading-[1.02]">
@@ -62,7 +62,7 @@ export default function HeroSection() {
           </div>
         </div>
 
-        <div className="animate-float-slow">
+        <div className="min-w-0 animate-float-slow">
           <HeroProductVisual />
         </div>
       </div>
