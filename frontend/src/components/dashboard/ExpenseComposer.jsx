@@ -51,10 +51,18 @@ export default function ExpenseComposer({
 }) {
   const [form, setForm] = useState(() => buildInitialForm(members, currentUserId))
   const [error, setError] = useState('')
+  const titleId = 'expense-composer-title'
 
   useEffect(() => {
     if (!isOpen) {
       return undefined
+    }
+
+    const previousBodyOverflow =
+      typeof document !== 'undefined' ? document.body.style.overflow : ''
+
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = 'hidden'
     }
 
     const handleEscape = (event) => {
@@ -66,6 +74,10 @@ export default function ExpenseComposer({
     window.addEventListener('keydown', handleEscape)
 
     return () => {
+      if (typeof document !== 'undefined') {
+        document.body.style.overflow = previousBodyOverflow
+      }
+
       window.removeEventListener('keydown', handleEscape)
     }
   }, [isOpen, onClose])
@@ -191,205 +203,223 @@ export default function ExpenseComposer({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/50 px-4 py-6 backdrop-blur-sm md:items-center"
+      className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/50 px-3 py-3 backdrop-blur-sm sm:px-4 sm:py-6"
       onClick={onClose}
       role="presentation"
     >
-      <Panel
-        className="w-full max-w-3xl p-6 md:p-8"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="section-badge">Add Expense</p>
-            <h3 className="mt-4 text-3xl font-semibold text-slate-900">Add a new shared expense</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              Capture the payer, category, participants, and whether the split should be
-              equal or custom.
-            </p>
-          </div>
-
-          <Button variant="secondary" onClick={onClose}>
-            Close
-          </Button>
-        </div>
-
-        <form className="mt-6 grid gap-4 md:grid-cols-2" onSubmit={handleSubmit}>
-          <TextField
-            label="Expense title"
-            name="title"
-            value={form.title}
-            onChange={handleFieldChange}
-            placeholder="Swiggy dinner"
-            className="md:col-span-2"
-          />
-          <TextField
-            label="Description"
-            name="description"
-            value={form.description}
-            onChange={handleFieldChange}
-            placeholder="Optional note, for example airport cabs or monthly Wi-Fi bill"
-            textarea
-            className="md:col-span-2"
-          />
-          <TextField
-            label="Amount"
-            name="amount"
-            type="number"
-            min="0"
-            step="0.01"
-            value={form.amount}
-            onChange={handleFieldChange}
-            placeholder="0.00"
-          />
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">Category</span>
-            <select
-              className="w-full rounded-2xl border border-slate-200 bg-white/94 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary/30 focus:ring-2 focus:ring-primary/18"
-              name="category"
-              onChange={handleFieldChange}
-              value={form.category}
-            >
-              {expenseCategoryOptions.map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">Paid by</span>
-            <select
-              name="paidByUserId"
-              value={form.paidByUserId}
-              onChange={handleFieldChange}
-              className="w-full rounded-2xl border border-white/60 bg-white/75 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary/30 focus:ring-2 focus:ring-primary/20"
-            >
-              {members.map((member) => (
-                <option key={member.id} value={member.id}>
-                  {member.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <div className="md:col-span-2">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">Split type</span>
-            <div className="flex flex-wrap gap-3">
-              <Button
-                type="button"
-                variant={form.splitType === 'equal' ? 'primary' : 'secondary'}
-                onClick={() => handleSplitTypeChange('equal')}
+      <div className="flex min-h-full items-end justify-center md:items-center">
+        <Panel
+          aria-labelledby={titleId}
+          aria-modal="true"
+          aria-describedby={error ? 'expense-composer-error' : undefined}
+          className="max-h-[calc(100vh-1.5rem)] w-full max-w-3xl overflow-y-auto overscroll-contain p-4 sm:max-h-[calc(100vh-3rem)] sm:p-6 md:p-8"
+          onClick={(event) => event.stopPropagation()}
+          role="dialog"
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="section-badge">Add Expense</p>
+              <h3
+                className="mt-4 text-2xl font-semibold text-slate-900 sm:text-3xl"
+                id={titleId}
               >
-                Split equally
-              </Button>
-              <Button
-                type="button"
-                variant={form.splitType === 'custom' ? 'primary' : 'secondary'}
-                onClick={() => handleSplitTypeChange('custom')}
-              >
-                Custom shares
-              </Button>
-            </div>
-          </div>
-
-          <div className="md:col-span-2">
-            <span className="mb-2 block text-sm font-semibold text-slate-700">Participants</span>
-            <div className="grid gap-3 md:grid-cols-2">
-              {members.map((member) => {
-                const isSelected = form.participantUserIds.includes(member.id)
-                const sharePreview =
-                  form.splitType === 'custom'
-                    ? Number(form.customShares[member.id] || 0)
-                    : Number(equalSharePreview[member.id] || 0)
-
-                return (
-                  <div
-                    key={member.id}
-                    className={`rounded-3xl border p-4 ${
-                      isSelected ? 'border-primary/25 bg-primary/8' : 'border-white/60 bg-white/70'
-                    }`}
-                  >
-                    <label className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => handleToggleParticipant(member.id)}
-                        className="mt-1 h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary/30"
-                      />
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-slate-900">{member.name}</p>
-                        <p className="mt-1 text-xs text-slate-500">{member.email}</p>
-                        {isSelected ? (
-                          form.splitType === 'custom' ? (
-                            <div className="mt-3">
-                              <label className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
-                                Share (INR)
-                              </label>
-                              <input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={form.customShares[member.id] || ''}
-                                onChange={(event) =>
-                                  handleCustomShareChange(member.id, event.target.value)
-                                }
-                                className="mt-2 w-full rounded-2xl border border-white/60 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary/30 focus:ring-2 focus:ring-primary/20"
-                              />
-                            </div>
-                          ) : (
-                            <p className="mt-3 text-sm font-medium text-primary">
-                              {formatCurrency(sharePreview, currency)}
-                            </p>
-                          )
-                        ) : null}
-                      </div>
-                    </label>
-                  </div>
-                )
-              })}
-            </div>
-            {form.splitType === 'custom' ? (
-              <p className="mt-3 text-sm text-slate-500">
-                Custom total: {formatCurrency(customSplitTotal, currency)} of{' '}
-                {formatCurrency(form.amount || 0, currency)}
+                Add a new shared expense
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Capture the payer, category, participants, and whether the split should be
+                equal or custom.
               </p>
-            ) : null}
+            </div>
+
+            <Button className="w-full sm:w-auto" variant="secondary" onClick={onClose}>
+              Close
+            </Button>
           </div>
 
-          {error ? (
-            <div className="md:col-span-2 rounded-2xl border border-danger/15 bg-danger/10 px-4 py-3 text-sm font-medium text-danger">
-              {error}
-            </div>
-          ) : null}
+          <form className="mt-6 grid gap-4 md:grid-cols-2" onSubmit={handleSubmit}>
+            <TextField
+              label="Expense title"
+              name="title"
+              value={form.title}
+              onChange={handleFieldChange}
+              placeholder="Swiggy dinner"
+              className="md:col-span-2"
+            />
+            <TextField
+              label="Description"
+              name="description"
+              value={form.description}
+              onChange={handleFieldChange}
+              placeholder="Optional note, for example airport cabs or monthly Wi-Fi bill"
+              textarea
+              className="md:col-span-2"
+            />
+            <TextField
+              label="Amount"
+              name="amount"
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.amount}
+              onChange={handleFieldChange}
+              placeholder="0.00"
+            />
 
-          <div className="md:col-span-2 rounded-[24px] border border-slate-200/70 bg-slate-50/70 px-4 py-4">
-            <div className="flex items-start gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <Icon name="analytics" size={18} />
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-slate-900">This expense updates live analytics</p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">
-                  Category breakdown, member balances, and settlement suggestions refresh
-                  after the expense is recorded.
-                </p>
+            <label className="block">
+              <span className="mb-2 block text-sm font-semibold text-slate-700">Category</span>
+              <select
+                className="w-full rounded-2xl border border-slate-200 bg-white/94 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary/30 focus:ring-2 focus:ring-primary/18"
+                name="category"
+                onChange={handleFieldChange}
+                value={form.category}
+              >
+                {expenseCategoryOptions.map((category) => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-semibold text-slate-700">Paid by</span>
+              <select
+                name="paidByUserId"
+                value={form.paidByUserId}
+                onChange={handleFieldChange}
+                className="w-full rounded-2xl border border-white/60 bg-white/75 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary/30 focus:ring-2 focus:ring-primary/20"
+              >
+                {members.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="md:col-span-2">
+              <span className="mb-2 block text-sm font-semibold text-slate-700">Split type</span>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  type="button"
+                  variant={form.splitType === 'equal' ? 'primary' : 'secondary'}
+                  onClick={() => handleSplitTypeChange('equal')}
+                >
+                  Split equally
+                </Button>
+                <Button
+                  type="button"
+                  variant={form.splitType === 'custom' ? 'primary' : 'secondary'}
+                  onClick={() => handleSplitTypeChange('custom')}
+                >
+                  Custom shares
+                </Button>
               </div>
             </div>
-          </div>
 
-          <div className="md:col-span-2 flex flex-col gap-3 sm:flex-row sm:justify-end">
-            <Button type="button" variant="secondary" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting} loading={isSubmitting}>
-              Save Expense
-            </Button>
-          </div>
-        </form>
-      </Panel>
+            <div className="md:col-span-2">
+              <span className="mb-2 block text-sm font-semibold text-slate-700">Participants</span>
+              <div className="grid gap-3 md:grid-cols-2">
+                {members.map((member) => {
+                  const isSelected = form.participantUserIds.includes(member.id)
+                  const sharePreview =
+                    form.splitType === 'custom'
+                      ? Number(form.customShares[member.id] || 0)
+                      : Number(equalSharePreview[member.id] || 0)
+
+                  return (
+                    <div
+                      key={member.id}
+                      className={`rounded-3xl border p-4 ${
+                        isSelected
+                          ? 'border-primary/25 bg-primary/8'
+                          : 'border-white/60 bg-white/70'
+                      }`}
+                    >
+                      <label className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleToggleParticipant(member.id)}
+                          className="mt-1 h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary/30"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-slate-900">{member.name}</p>
+                          <p className="mt-1 break-all text-xs text-slate-500">{member.email}</p>
+                          {isSelected ? (
+                            form.splitType === 'custom' ? (
+                              <div className="mt-3">
+                                <label className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                                  Share ({currency})
+                                </label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={form.customShares[member.id] || ''}
+                                  onChange={(event) =>
+                                    handleCustomShareChange(member.id, event.target.value)
+                                  }
+                                  className="mt-2 w-full rounded-2xl border border-white/60 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-primary/30 focus:ring-2 focus:ring-primary/20"
+                                />
+                              </div>
+                            ) : (
+                              <p className="mt-3 text-sm font-medium text-primary">
+                                {formatCurrency(sharePreview, currency)}
+                              </p>
+                            )
+                          ) : null}
+                        </div>
+                      </label>
+                    </div>
+                  )
+                })}
+              </div>
+              {form.splitType === 'custom' ? (
+                <p className="mt-3 text-sm text-slate-500">
+                  Custom total: {formatCurrency(customSplitTotal, currency)} of{' '}
+                  {formatCurrency(form.amount || 0, currency)}
+                </p>
+              ) : null}
+            </div>
+
+            {error ? (
+              <div
+                className="md:col-span-2 rounded-2xl border border-danger/15 bg-danger/10 px-4 py-3 text-sm font-medium text-danger"
+                id="expense-composer-error"
+              >
+                {error}
+              </div>
+            ) : null}
+
+            <div className="md:col-span-2 rounded-[24px] border border-slate-200/70 bg-slate-50/70 px-4 py-4">
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <Icon name="analytics" size={18} />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">
+                    This expense updates live analytics
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">
+                    Category breakdown, member balances, and settlement suggestions refresh
+                    after the expense is recorded.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="md:col-span-2 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <Button type="button" variant="secondary" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting} loading={isSubmitting}>
+                Save Expense
+              </Button>
+            </div>
+          </form>
+        </Panel>
+      </div>
     </div>
   )
 }

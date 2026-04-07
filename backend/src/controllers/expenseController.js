@@ -38,11 +38,8 @@ const createNewExpense = asyncHandler(async (req, res) => {
     statusCode: 201,
     message: 'Expense added successfully',
     data: {
+      ...groupDetails,
       expense,
-      group: groupDetails.group,
-      balances: groupDetails.balances,
-      settlements: groupDetails.settlements,
-      summary: groupDetails.summary,
       expenses: groupDetails.expenses.map(serializeExpense),
     },
   })
