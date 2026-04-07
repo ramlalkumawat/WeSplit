@@ -50,6 +50,7 @@ If you deploy frontend and backend separately:
 - if you set only the bare backend origin, for example `https://your-service.onrender.com`, the frontend now normalizes it to `https://your-service.onrender.com/api`
 - backend `CLIENT_URLS` or `CLIENT_URL` should include the frontend origin, for example `https://app.your-domain.com`
 - for Vercel -> Render deployments, set backend `CLIENT_URLS=https://your-project.vercel.app` and `TRUST_PROXY=true`
+- for this deployment, Render should allow `https://we-split-henna.vercel.app` and Vercel should point `VITE_API_BASE_URL` to `https://wesplit-nlwr.onrender.com/api`
 - the backend now defaults cross-origin auth cookies to `SameSite=None` and `Secure=true` in production when the configured frontend origin differs from the Render origin, but explicit `COOKIE_SAME_SITE` and `COOKIE_SECURE` values still override that behavior
 - if `VITE_API_BASE_URL` is left as `/api` on Vercel, browser requests will go to `https://your-project.vercel.app/api/...` and return 404 unless you add a Vercel rewrite or proxy
 

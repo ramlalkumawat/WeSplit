@@ -103,11 +103,11 @@ const sendOperationalResponse = (res, message) => {
 
 app.disable('x-powered-by')
 app.set('trust proxy', trustProxy)
-app.use(securityHeaders)
 app.use(cors(corsOptionsDelegate))
 app.options('*', cors(corsOptionsDelegate))
 app.use(cookieParser())
 app.use(express.json({ limit: '1mb' }))
+app.use(securityHeaders)
 
 app.get('/', (req, res) => {
   if (shouldServeFrontend) {

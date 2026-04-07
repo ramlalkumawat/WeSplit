@@ -8,6 +8,7 @@ const VALID_NODE_ENVS = new Set(['development', 'production', 'test'])
 const DEFAULT_NODE_ENV = 'development'
 const DEFAULT_PORT = 5000
 const DEFAULT_HOST = '0.0.0.0'
+const DEFAULT_CLIENT_ORIGINS = ['https://we-split-henna.vercel.app']
 const CLIENT_ORIGIN_ENV_KEYS = ['CLIENT_URLS', 'CLIENT_URL']
 
 const normalizeNodeEnv = (value) => {
@@ -87,6 +88,12 @@ const renderExternalUrl = normalizeOrigin(process.env.RENDER_EXTERNAL_URL)
 const parsedClientUrlConfig = parseOriginList(getCombinedEnvValue(CLIENT_ORIGIN_ENV_KEYS))
 const clientUrls = [...parsedClientUrlConfig.origins]
 
+DEFAULT_CLIENT_ORIGINS.forEach((origin) => {
+  if (!clientUrls.includes(origin)) {
+    clientUrls.push(origin)
+  }
+})
+
 if (renderExternalUrl && !clientUrls.includes(renderExternalUrl)) {
   clientUrls.push(renderExternalUrl)
 }
@@ -113,6 +120,12 @@ const getEnvWarnings = () => {
   if (isProduction && clientUrls.length === 0) {
     warnings.push(
       `${CLIENT_ORIGIN_ENV_KEYS.join('/')} is not set. Cross-origin browser requests may be blocked unless the frontend is served from the same host.`,
+    )
+  }
+
+  if (!getCombinedEnvValue(CLIENT_ORIGIN_ENV_KEYS)) {
+    warnings.push(
+      `Using built-in fallback client origin(s): ${DEFAULT_CLIENT_ORIGINS.join(', ')}. Set ${CLIENT_ORIGIN_ENV_KEYS.join(' or ')} on Render to make this explicit.`,
     )
   }
 
