@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { footerLinks } from '../../data/landingContent'
 import BrandMark from '../layout/BrandMark'
-import Icon from '../ui/Icon'
 
 export default function Footer() {
   return (
@@ -47,17 +46,18 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="page-shell mt-10 flex flex-col gap-4 border-t border-slate-200 pt-6 text-sm text-slate-500 lg:flex-row lg:items-center lg:justify-between">
-        <p>Designed & Developed by Ramlal Kumawat</p>
-        <a
-          className="inline-flex items-center gap-2 font-semibold text-slate-700 transition hover:text-primary"
-          href="https://instagram.com/ramlalkumawat"
-          rel="noreferrer"
-          target="_blank"
-        >
-          <Icon name="spark" size={16} />
-          Instagram / @ramlalkumawat
-        </a>
+      <div className="page-shell mt-10 border-t border-slate-200 pt-6 text-sm text-slate-500">
+        <p>
+          Designed & Developed by{' '}
+          <a
+            className="font-semibold text-slate-700 transition hover:text-primary"
+            href="https://instagram.com/ramlalkumawat"
+            rel="noreferrer"
+            target="_blank"
+          >
+            Ramlal Kumawat
+          </a>
+        </p>
       </div>
     </footer>
   )
