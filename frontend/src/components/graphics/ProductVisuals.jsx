@@ -16,109 +16,109 @@ function MiniBar({ color, height }) {
 
 export function HeroProductVisual() {
   return (
-    <div className="relative mx-auto w-full max-w-[42rem]">
+    <div className="relative w-full">
       <div className="absolute inset-x-6 top-8 h-40 rounded-full bg-primary/16 blur-3xl sm:inset-x-8 sm:top-10" />
       <div className="relative overflow-hidden rounded-[34px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(245,248,255,0.94))] p-4 shadow-[0_36px_110px_rgba(17,24,39,0.18)] backdrop-blur-xl sm:p-5 lg:p-6">
-        <div className="rounded-[30px] bg-slate-950 p-4 text-white sm:p-5 lg:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/55">
-                Active workspace
-              </p>
-              <h3 className="mt-3 text-2xl font-bold">Goa House Trip</h3>
-            </div>
-            <div className="self-start rounded-full border border-white/10 bg-white/8 px-4 py-2 text-xs font-semibold text-white/75 sm:self-auto">
-              7 members
-            </div>
-          </div>
-
-          <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,220px)]">
-            <div className="min-w-0 rounded-[26px] border border-white/10 bg-white/6 p-4">
-              <div className="flex items-center justify-between">
-                <div className="min-w-0">
-                  <p className="text-sm text-white/60">Net balance snapshot</p>
-                  <p className="mt-2 text-3xl font-bold text-emerald-300">Rs 8,420</p>
-                </div>
-                <div className="rounded-2xl bg-emerald-400/15 p-3 text-emerald-200">
-                  <Icon name="balance" size={22} />
-                </div>
-              </div>
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-[22px] bg-white/8 p-3">
-                  <p className="text-xs uppercase tracking-[0.24em] text-white/45">Spend</p>
-                  <p className="mt-2 text-lg font-semibold">Rs 46,300</p>
-                </div>
-                <div className="rounded-[22px] bg-white/8 p-3">
-                  <p className="text-xs uppercase tracking-[0.24em] text-white/45">Settled</p>
-                  <p className="mt-2 text-lg font-semibold">Rs 18,920</p>
-                </div>
-                <div className="rounded-[22px] bg-white/8 p-3">
-                  <p className="text-xs uppercase tracking-[0.24em] text-white/45">Pending</p>
-                  <p className="mt-2 text-lg font-semibold">3 actions</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="min-w-0 rounded-[26px] border border-white/10 bg-white/6 p-4">
-              <p className="text-sm text-white/60">Category mix</p>
-              <div className="mt-5 flex h-36 items-end gap-3">
-                <MiniBar color="#155EEF" height="88px" />
-                <MiniBar color="#F79009" height="60px" />
-                <MiniBar color="#12B76A" height="44px" />
-                <MiniBar color="#7A5AF8" height="92px" />
-                <MiniBar color="#EF6820" height="54px" />
-              </div>
-              <div className="mt-4 flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.24em] text-white/45">
-                <span>Housing</span>
-                <span>Food</span>
-                <span>Travel</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative z-10 mt-4 grid gap-4 lg:mt-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-          <div className="min-w-0 rounded-[28px] border border-slate-200/70 bg-white/90 p-5 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="w-full rounded-[30px] bg-slate-950 p-4 text-white sm:p-5 lg:col-span-2 lg:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">
-                  Activity feed
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/55">
+                  Active workspace
                 </p>
-                <h4 className="mt-2 text-xl font-bold text-slate-950">Latest money movement</h4>
+                <h3 className="mt-3 text-2xl font-bold">Goa House Trip</h3>
               </div>
-              <div className="self-start rounded-2xl bg-primary/10 p-3 text-primary sm:self-auto">
-                <Icon name="refresh" size={20} />
+              <div className="self-start rounded-full border border-white/10 bg-white/8 px-4 py-2 text-xs font-semibold text-white/75 sm:self-auto">
+                7 members
               </div>
             </div>
 
-            <div className="mt-5 space-y-3">
-              {[
-                {
-                  title: 'Villa booking added',
-                  note: 'Paid by Aditi, split between 7 travellers',
-                },
-                {
-                  title: 'UPI settlement recorded',
-                  note: 'Raghav paid Mehak Rs 2,400',
-                },
-                {
-                  title: 'Airport cabs updated',
-                  note: 'Transport category now leads this week',
-                },
-              ].map((item) => (
-                <div
-                  key={item.title}
-                  className="rounded-[22px] border border-slate-200/70 bg-slate-50/80 px-4 py-3"
-                >
-                  <p className="text-sm font-semibold text-slate-950">{item.title}</p>
-                  <p className="mt-1 text-sm text-slate-500">{item.note}</p>
+            <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="min-w-0 w-full rounded-[26px] border border-white/10 bg-white/6 p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-sm text-white/60">Net balance snapshot</p>
+                    <p className="mt-2 text-3xl font-bold text-emerald-300">Rs 8,420</p>
+                  </div>
+                  <div className="rounded-2xl bg-emerald-400/15 p-3 text-emerald-200">
+                    <Icon name="balance" size={22} />
+                  </div>
                 </div>
-              ))}
+                <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <div className="rounded-[22px] bg-white/8 p-3">
+                    <p className="text-xs uppercase tracking-[0.24em] text-white/45">Spend</p>
+                    <p className="mt-2 text-lg font-semibold">Rs 46,300</p>
+                  </div>
+                  <div className="rounded-[22px] bg-white/8 p-3">
+                    <p className="text-xs uppercase tracking-[0.24em] text-white/45">Settled</p>
+                    <p className="mt-2 text-lg font-semibold">Rs 18,920</p>
+                  </div>
+                  <div className="rounded-[22px] bg-white/8 p-3">
+                    <p className="text-xs uppercase tracking-[0.24em] text-white/45">Pending</p>
+                    <p className="mt-2 text-lg font-semibold">3 actions</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="min-w-0 w-full rounded-[26px] border border-white/10 bg-white/6 p-4">
+                <p className="text-sm text-white/60">Category mix</p>
+                <div className="mt-5 flex h-36 items-end gap-3">
+                  <MiniBar color="#155EEF" height="88px" />
+                  <MiniBar color="#F79009" height="60px" />
+                  <MiniBar color="#12B76A" height="44px" />
+                  <MiniBar color="#7A5AF8" height="92px" />
+                  <MiniBar color="#EF6820" height="54px" />
+                </div>
+                <div className="mt-4 flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.24em] text-white/45">
+                  <span>Housing</span>
+                  <span>Food</span>
+                  <span>Travel</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="min-w-0 space-y-4">
-            <div className="rounded-[28px] border border-slate-200/70 bg-white/90 p-5 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+          <div className="w-full space-y-6">
+            <div className="min-w-0 w-full rounded-[28px] border border-slate-200/70 bg-white/90 p-5 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">
+                    Activity feed
+                  </p>
+                  <h4 className="mt-2 text-xl font-bold text-slate-950">Latest money movement</h4>
+                </div>
+                <div className="self-start rounded-2xl bg-primary/10 p-3 text-primary sm:self-auto">
+                  <Icon name="refresh" size={20} />
+                </div>
+              </div>
+
+              <div className="mt-5 space-y-3">
+                {[
+                  {
+                    title: 'Villa booking added',
+                    note: 'Paid by Aditi, split between 7 travellers',
+                  },
+                  {
+                    title: 'UPI settlement recorded',
+                    note: 'Raghav paid Mehak Rs 2,400',
+                  },
+                  {
+                    title: 'Airport cabs updated',
+                    note: 'Transport category now leads this week',
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.title}
+                    className="rounded-[22px] border border-slate-200/70 bg-slate-50/80 px-4 py-3"
+                  >
+                    <p className="text-sm font-semibold text-slate-950">{item.title}</p>
+                    <p className="mt-1 text-sm text-slate-500">{item.note}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="min-w-0 w-full rounded-[28px] border border-slate-200/70 bg-white/90 p-5 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
               <div className="flex items-center justify-between gap-4">
                 <p className="text-sm font-semibold text-slate-600">Suggested settlement</p>
                 <Icon className="text-success" name="lightning" size={18} />
@@ -129,7 +129,7 @@ export function HeroProductVisual() {
               </p>
             </div>
 
-            <div className="rounded-[28px] border border-slate-200/70 bg-[linear-gradient(135deg,rgba(21,94,239,0.08),rgba(14,116,144,0.1))] p-5 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+            <div className="min-w-0 w-full rounded-[28px] border border-slate-200/70 bg-[linear-gradient(135deg,rgba(21,94,239,0.08),rgba(14,116,144,0.1))] p-5 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
               <div className="flex items-center gap-3">
                 <div className="rounded-2xl bg-white p-3 text-primary shadow-sm">
                   <Icon name="shield" size={20} />

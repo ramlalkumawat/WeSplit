@@ -36,56 +36,56 @@ function SummaryTile({ label, value, tone = 'text-slate-950', icon }) {
   )
 }
 
+function ResponsiveContainer({ children, className = '' }) {
+  return <div className={`h-full w-full overflow-hidden ${className}`.trim()}>{children}</div>
+}
+
 function MonthlyActivityChart({ currency, items = [] }) {
   const maxValue = Math.max(...items.map((item) => item.activityTotal), 0)
 
   if (!items.length) {
     return (
-      <div className="mt-5 rounded-[24px] border border-dashed border-slate-200 bg-slate-50/80 px-4 py-6 text-sm text-slate-500">
+      <div className="flex h-full items-center rounded-[24px] border border-dashed border-slate-200 bg-slate-50/80 px-4 py-6 text-sm text-slate-500">
         Add a few expenses or settlements to unlock monthly activity trends.
       </div>
     )
   }
 
   return (
-    <div className="mt-5 space-y-4">
-      <div className="-mx-1 overflow-x-auto px-1 pb-2">
-        <div
-          className="grid min-w-[28rem] gap-3 sm:min-w-0"
-          style={{
-            gridTemplateColumns: `repeat(${items.length}, minmax(4.5rem, 1fr))`,
-          }}
-        >
-          {items.map((item) => {
-            const expenseHeight = maxValue ? (item.expenseTotal / maxValue) * 100 : 0
-            const settlementHeight = maxValue ? (item.settlementTotal / maxValue) * 100 : 0
+    <div className="flex h-full min-h-0 flex-col justify-between gap-4">
+      <div
+        className="grid flex-1 min-h-0 gap-3"
+        style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
+      >
+        {items.map((item) => {
+          const expenseHeight = maxValue ? (item.expenseTotal / maxValue) * 100 : 0
+          const settlementHeight = maxValue ? (item.settlementTotal / maxValue) * 100 : 0
 
-            return (
-              <div key={item.key} className="flex min-w-0 flex-col items-center gap-3">
-                <div className="flex h-40 w-full items-end justify-center gap-2 rounded-[22px] bg-slate-50/80 px-3 py-3">
-                  <div className="flex h-full w-3.5 items-end rounded-full bg-primary/10 sm:w-4">
-                    <div
-                      className="w-full rounded-full bg-primary"
-                      style={{ height: `${Math.max(expenseHeight, 8)}%` }}
-                    />
-                  </div>
-                  <div className="flex h-full w-3.5 items-end rounded-full bg-success/10 sm:w-4">
-                    <div
-                      className="w-full rounded-full bg-success"
-                      style={{ height: `${Math.max(settlementHeight, item.settlementTotal ? 8 : 0)}%` }}
-                    />
-                  </div>
+          return (
+            <div key={item.key} className="flex min-w-0 flex-col justify-end gap-3">
+              <div className="flex min-h-0 flex-1 items-end justify-center gap-2 rounded-[22px] bg-slate-50/80 px-2 py-4 sm:px-3">
+                <div className="flex h-full w-3 items-end rounded-full bg-primary/10 sm:w-4">
+                  <div
+                    className="w-full rounded-full bg-primary"
+                    style={{ height: `${Math.max(expenseHeight, 8)}%` }}
+                  />
                 </div>
-                <div className="w-full text-center">
-                  <p className="truncate text-sm font-semibold text-slate-700">{item.label}</p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    {formatCompactCurrency(item.activityTotal, currency)}
-                  </p>
+                <div className="flex h-full w-3 items-end rounded-full bg-success/10 sm:w-4">
+                  <div
+                    className="w-full rounded-full bg-success"
+                    style={{ height: `${Math.max(settlementHeight, item.settlementTotal ? 8 : 0)}%` }}
+                  />
                 </div>
               </div>
-            )
-          })}
-        </div>
+              <div className="w-full text-center">
+                <p className="truncate text-sm font-semibold text-slate-700">{item.label}</p>
+                <p className="mt-1 text-xs text-slate-500">
+                  {formatCompactCurrency(item.activityTotal, currency)}
+                </p>
+              </div>
+            </div>
+          )
+        })}
       </div>
       <div className="flex flex-wrap gap-4 text-xs uppercase tracking-[0.2em] text-slate-400">
         <span className="inline-flex items-center gap-2">
@@ -177,8 +177,8 @@ export default function GroupWorkspace({
             </div>
           </div>
 
-          <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap xl:w-auto xl:max-w-[36rem] xl:justify-end">
-            <Panel className="w-full px-4 py-3 sm:flex-1 xl:min-w-[12rem] xl:flex-none">
+          <div className="flex w-full flex-col gap-3 xl:w-auto">
+            <Panel className="w-full px-4 py-3">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
                 Last activity
               </p>
@@ -186,30 +186,28 @@ export default function GroupWorkspace({
                 {formatDateTime(group.lastActivityAt)}
               </p>
             </Panel>
-            <Button
-              className="w-full sm:w-auto"
-              disabled={isMutating}
-              onClick={onShareGroupSummary}
-              variant="secondary"
-            >
-              <Icon name="message" size={18} />
-              Share on WhatsApp
-            </Button>
-            <Button
-              className="relative z-10 w-full sm:w-auto"
-              onClick={onOpenExpenseComposer}
-              disabled={isMutating}
-            >
-              Add Expense
-            </Button>
-            <Button
-              className="w-full sm:w-auto"
-              disabled={!settlements.length}
-              onClick={() => onOpenSettlementComposer(settlements[0]?.id)}
-              variant="secondary"
-            >
-              Record Settlement
-            </Button>
+            <div className="flex flex-col justify-end gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
+              <Button
+                className="w-full sm:w-auto"
+                disabled={isMutating}
+                onClick={onShareGroupSummary}
+                variant="secondary"
+              >
+                <Icon name="message" size={18} />
+                Share on WhatsApp
+              </Button>
+              <Button className="w-full sm:w-auto" onClick={onOpenExpenseComposer} disabled={isMutating}>
+                Add Expense
+              </Button>
+              <Button
+                className="w-full sm:w-auto"
+                disabled={!settlements.length}
+                onClick={() => onOpenSettlementComposer(settlements[0]?.id)}
+                variant="secondary"
+              >
+                Record Settlement
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -288,7 +286,9 @@ export default function GroupWorkspace({
 
             <div className="min-w-0 overflow-hidden rounded-[28px] border border-slate-200/70 bg-white/88 p-5">
               <p className="text-sm font-semibold text-slate-700">Monthly activity</p>
-              <MonthlyActivityChart currency={group.currency} items={analytics.monthlyActivity} />
+              <ResponsiveContainer className="mt-5 h-[300px] sm:h-[350px] md:h-[400px]">
+                <MonthlyActivityChart currency={group.currency} items={analytics.monthlyActivity} />
+              </ResponsiveContainer>
             </div>
           </div>
         </Panel>

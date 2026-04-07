@@ -221,97 +221,102 @@ export default function GroupsPage() {
         title="Groups Workspace | Wesplit"
       />
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(18rem,22rem)]">
-        <Panel className="p-7 md:p-8">
-          <p className="section-badge">Groups Workspace</p>
-          <h1 className="mt-6 text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">
-            Run every group from one focused shared-finance workspace.
-          </h1>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600">
-            Create groups, invite members, review analytics, add expenses, and record
-            completed settlements without leaving the protected product flow.
-          </p>
+      <section className="grid gap-6 xl:grid-cols-3">
+        <div className="min-w-0 xl:col-span-2">
+          <Panel className="p-7 md:p-8">
+            <p className="section-badge">Groups Workspace</p>
+            <h1 className="mt-6 text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">
+              Run every group from one focused shared-finance workspace.
+            </h1>
+            <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600">
+              Create groups, invite members, review analytics, add expenses, and record
+              completed settlements without leaving the protected product flow.
+            </p>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Link
-              className={getButtonClasses({
-                variant: 'secondary',
-                className: 'w-full sm:w-auto',
-              })}
-              to="/dashboard"
-            >
-              Back to Dashboard
-            </Link>
-            {selectedGroupDetail?.group ? (
-              <Button
-                className="relative z-10 w-full sm:w-auto"
-                onClick={() => setIsExpenseComposerOpen(true)}
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
+              <Link
+                className={getButtonClasses({
+                  variant: 'secondary',
+                  className: 'w-full sm:w-auto',
+                })}
+                to="/dashboard"
               >
-                Add Expense
-              </Button>
-            ) : null}
-            {selectedGroupDetail?.group ? (
-              <Button
-                className="w-full sm:w-auto"
-                disabled={!selectedGroupDetail?.settlements?.length}
-                onClick={() => handleOpenSettlementComposer('')}
-                variant="secondary"
-              >
-                Record Settlement
-              </Button>
-            ) : null}
-          </div>
-        </Panel>
+                Back to Dashboard
+              </Link>
+              {selectedGroupDetail?.group ? (
+                <Button className="w-full sm:w-auto" onClick={() => setIsExpenseComposerOpen(true)}>
+                  Add Expense
+                </Button>
+              ) : null}
+              {selectedGroupDetail?.group ? (
+                <Button
+                  className="w-full sm:w-auto"
+                  disabled={!selectedGroupDetail?.settlements?.length}
+                  onClick={() => handleOpenSettlementComposer('')}
+                  variant="secondary"
+                >
+                  Record Settlement
+                </Button>
+              ) : null}
+            </div>
+          </Panel>
+        </div>
 
-        <Panel className="p-6">
-          <p className="eyebrow">Workspace notes</p>
-          <div className="mt-5 space-y-4">
-            {[
-              'Group balances now reflect both expenses and recorded settlements.',
-              'Category-aware analytics explain where shared spend is coming from.',
-              'Create, invite, expense, and settlement flows all share loading and validation states.',
-            ].map((note) => (
-              <div
-                key={note}
-                className="rounded-[24px] border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-7 text-slate-600"
-              >
-                {note}
-              </div>
-            ))}
-          </div>
-        </Panel>
+        <div className="min-w-0 xl:col-span-1">
+          <Panel className="p-6">
+            <p className="eyebrow">Workspace notes</p>
+            <div className="mt-5 space-y-4">
+              {[
+                'Group balances now reflect both expenses and recorded settlements.',
+                'Category-aware analytics explain where shared spend is coming from.',
+                'Create, invite, expense, and settlement flows all share loading and validation states.',
+              ].map((note) => (
+                <div
+                  key={note}
+                  className="rounded-[24px] border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-7 text-slate-600"
+                >
+                  {note}
+                </div>
+              ))}
+            </div>
+          </Panel>
+        </div>
       </section>
 
       <OverviewCards overview={overview} />
 
-      <main className="grid gap-6 xl:grid-cols-[minmax(18rem,22rem)_minmax(0,1fr)] xl:items-start">
-        <GroupSidebar
-          errors={groupErrors}
-          form={groupForm}
-          groups={groups}
-          isLoading={isLoadingGroups}
-          isMutating={isMutating}
-          onChange={handleGroupFormChange}
-          onSelectGroup={openSelectedGroup}
-          onSubmit={handleCreateGroup}
-          selectedGroupId={selectedGroupId}
-        />
+      <main className="grid gap-6 xl:grid-cols-3">
+        <div className="min-w-0 xl:col-span-1">
+          <GroupSidebar
+            errors={groupErrors}
+            form={groupForm}
+            groups={groups}
+            isLoading={isLoadingGroups}
+            isMutating={isMutating}
+            onChange={handleGroupFormChange}
+            onSelectGroup={openSelectedGroup}
+            onSubmit={handleCreateGroup}
+            selectedGroupId={selectedGroupId}
+          />
+        </div>
 
-        <GroupWorkspace
-          currentUserId={user?.id}
-          detail={selectedGroupDetail}
-          isLoading={isLoadingGroupDetail}
-          isMutating={isMutating}
-          memberEmail={memberEmail}
-          memberError={memberError}
-          onMemberEmailChange={handleMemberChange}
-          onOpenExpenseComposer={() => setIsExpenseComposerOpen(true)}
-          onOpenSettlementComposer={handleOpenSettlementComposer}
-          onRemoveMember={handleRemoveMember}
-          onShareGroupSummary={handleShareGroupSummary}
-          onShareSettlementReminder={handleShareSettlementReminder}
-          onSubmitMember={handleAddMember}
-        />
+        <div className="min-w-0 xl:col-span-2">
+          <GroupWorkspace
+            currentUserId={user?.id}
+            detail={selectedGroupDetail}
+            isLoading={isLoadingGroupDetail}
+            isMutating={isMutating}
+            memberEmail={memberEmail}
+            memberError={memberError}
+            onMemberEmailChange={handleMemberChange}
+            onOpenExpenseComposer={() => setIsExpenseComposerOpen(true)}
+            onOpenSettlementComposer={handleOpenSettlementComposer}
+            onRemoveMember={handleRemoveMember}
+            onShareGroupSummary={handleShareGroupSummary}
+            onShareSettlementReminder={handleShareSettlementReminder}
+            onSubmitMember={handleAddMember}
+          />
+        </div>
       </main>
 
       <ExpenseComposer
