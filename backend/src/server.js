@@ -1,5 +1,6 @@
 const { connectDB, getDatabaseStatus } = require('./config/database')
 const { getEnvWarnings, host, nodeEnv, port, validateRequiredEnv } = require('./config/env')
+const { getSecurityWarnings } = require('./config/security')
 const app = require('./app')
 
 let server
@@ -9,6 +10,9 @@ const startServer = async () => {
     validateRequiredEnv()
     getEnvWarnings().forEach((warning) => {
       console.warn(`Configuration warning: ${warning}`)
+    })
+    getSecurityWarnings().forEach((warning) => {
+      console.warn(`Security warning: ${warning}`)
     })
 
     await connectDB()

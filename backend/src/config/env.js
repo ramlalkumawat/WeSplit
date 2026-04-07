@@ -8,6 +8,7 @@ const VALID_NODE_ENVS = new Set(['development', 'production', 'test'])
 const DEFAULT_NODE_ENV = 'development'
 const DEFAULT_PORT = 5000
 const DEFAULT_HOST = '0.0.0.0'
+const CLIENT_ORIGIN_ENV_KEYS = ['CLIENT_URLS', 'CLIENT_URL']
 
 const normalizeNodeEnv = (value) => {
   const normalizedValue = String(value || DEFAULT_NODE_ENV).trim().toLowerCase()
@@ -68,6 +69,12 @@ const parsePort = (value) => {
   return Number.isInteger(parsedValue) && parsedValue > 0 ? parsedValue : DEFAULT_PORT
 }
 
+const getCombinedEnvValue = (keys) =>
+  keys
+    .map((key) => String(process.env[key] || '').trim())
+    .filter(Boolean)
+    .join(',')
+
 const rawNodeEnv = process.env.NODE_ENV
 const nodeEnv = normalizeNodeEnv(rawNodeEnv)
 const isProduction = nodeEnv === 'production'
@@ -77,7 +84,7 @@ process.env.NODE_ENV = nodeEnv
 const port = parsePort(process.env.PORT)
 const host = String(process.env.HOST || DEFAULT_HOST).trim() || DEFAULT_HOST
 const renderExternalUrl = normalizeOrigin(process.env.RENDER_EXTERNAL_URL)
-const parsedClientUrlConfig = parseOriginList(process.env.CLIENT_URLS)
+const parsedClientUrlConfig = parseOriginList(getCombinedEnvValue(CLIENT_ORIGIN_ENV_KEYS))
 const clientUrls = [...parsedClientUrlConfig.origins]
 
 if (renderExternalUrl && !clientUrls.includes(renderExternalUrl)) {
@@ -99,13 +106,13 @@ const getEnvWarnings = () => {
 
   if (parsedClientUrlConfig.invalidOrigins.length > 0) {
     warnings.push(
-      `Ignoring invalid CLIENT_URLS entr${parsedClientUrlConfig.invalidOrigins.length === 1 ? 'y' : 'ies'}: ${parsedClientUrlConfig.invalidOrigins.join(', ')}`,
+      `Ignoring invalid ${CLIENT_ORIGIN_ENV_KEYS.join('/')} entr${parsedClientUrlConfig.invalidOrigins.length === 1 ? 'y' : 'ies'}: ${parsedClientUrlConfig.invalidOrigins.join(', ')}`,
     )
   }
 
   if (isProduction && clientUrls.length === 0) {
     warnings.push(
-      'CLIENT_URLS is not set. Cross-origin browser requests may be blocked unless the frontend is served from the same host.',
+      `${CLIENT_ORIGIN_ENV_KEYS.join('/')} is not set. Cross-origin browser requests may be blocked unless the frontend is served from the same host.`,
     )
   }
 

@@ -5,6 +5,10 @@ const DEFAULT_API_BASE_PATH = '/api'
 const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL
 const CSRF_COOKIE_NAME = import.meta.env.VITE_CSRF_COOKIE_NAME || 'wesplit_csrf'
 const SAFE_HTTP_METHODS = new Set(['get', 'head', 'options'])
+const CSRF_ERROR_MESSAGE = 'CSRF token validation failed'
+
+let csrfTokenCache = ''
+let csrfTokenRequest = null
 
 const normalizeApiBaseUrl = (value) => {
   const rawValue = String(value || '').trim()
@@ -43,6 +47,7 @@ const apiClient = axios.create({
 const buildApiError = (error) => {
   if (error.response?.status === 401) {
     clearStoredToken()
+    clearCsrfToken()
     window.dispatchEvent(new Event('wesplit:auth-expired'))
   }
 
@@ -68,19 +73,49 @@ const readCookie = (cookieName) => {
   return match ? decodeURIComponent(match[1]) : ''
 }
 
-export function getCsrfToken() {
-  return readCookie(CSRF_COOKIE_NAME)
+const setCsrfToken = (value) => {
+  csrfTokenCache = typeof value === 'string' ? value : ''
+  return csrfTokenCache
 }
 
-export async function ensureCsrfToken() {
+const updateCsrfTokenFromResponse = (response) => {
+  const responseToken = response?.data?.data?.csrfToken
+
+  if (responseToken) {
+    return setCsrfToken(responseToken)
+  }
+
+  return ''
+}
+
+export function clearCsrfToken() {
+  setCsrfToken('')
+}
+
+export function getCsrfToken() {
+  return csrfTokenCache || readCookie(CSRF_COOKIE_NAME)
+}
+
+export async function ensureCsrfToken(forceRefresh = false) {
   const existingToken = getCsrfToken()
 
-  if (existingToken) {
+  if (!forceRefresh && existingToken) {
     return existingToken
   }
 
-  const response = await apiClient.get('/auth/csrf-token')
-  return response.data?.data?.csrfToken || getCsrfToken() || ''
+  if (!csrfTokenRequest) {
+    csrfTokenRequest = apiClient
+      .get('/auth/csrf-token', {
+        _skipCsrfRetry: true,
+        withCredentials: true,
+      })
+      .then((response) => updateCsrfTokenFromResponse(response) || getCsrfToken() || '')
+      .finally(() => {
+        csrfTokenRequest = null
+      })
+  }
+
+  return csrfTokenRequest
 }
 
 const shouldAttachCsrfHeader = (config) => {
@@ -90,6 +125,7 @@ const shouldAttachCsrfHeader = (config) => {
 
 apiClient.interceptors.request.use(async (config) => {
   config.headers = config.headers || {}
+  config.withCredentials = true
 
   const token = getStoredToken()
 
@@ -109,8 +145,38 @@ apiClient.interceptors.request.use(async (config) => {
 })
 
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => Promise.reject(buildApiError(error)),
+  async (response) => {
+    updateCsrfTokenFromResponse(response)
+    return response
+  },
+  async (error) => {
+    const originalConfig = error.config || {}
+    const method = String(originalConfig.method || 'get').toLowerCase()
+    const shouldRetryCsrfRequest =
+      error.response?.status === 403 &&
+      error.response?.data?.message === CSRF_ERROR_MESSAGE &&
+      !SAFE_HTTP_METHODS.has(method) &&
+      !originalConfig._csrfRetry &&
+      !originalConfig._skipCsrfRetry
+
+    if (shouldRetryCsrfRequest) {
+      clearCsrfToken()
+
+      const csrfToken = await ensureCsrfToken(true)
+
+      originalConfig._csrfRetry = true
+      originalConfig.headers = originalConfig.headers || {}
+      originalConfig.withCredentials = true
+
+      if (csrfToken) {
+        originalConfig.headers['x-csrf-token'] = csrfToken
+      }
+
+      return apiClient(originalConfig)
+    }
+
+    return Promise.reject(buildApiError(error))
+  },
 )
 
 export const extractData = (response) => response.data.data

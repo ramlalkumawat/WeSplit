@@ -16,7 +16,7 @@ const buildRefreshTokenCookieOptions = () => ({
 })
 
 const buildCsrfCookieOptions = () => ({
-  httpOnly: false,
+  httpOnly: true,
   maxAge: csrfTokenMaxAgeMs,
   path: '/',
   sameSite: cookieSameSite,

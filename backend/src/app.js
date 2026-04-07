@@ -15,6 +15,8 @@ const app = express()
 const frontendDistPath = path.resolve(__dirname, '../../frontend/dist')
 const frontendIndexPath = path.join(frontendDistPath, 'index.html')
 const shouldServeFrontend = isProduction && fs.existsSync(frontendIndexPath)
+const corsAllowedHeaders = ['Authorization', 'Content-Type', 'X-CSRF-Token']
+const corsAllowedMethods = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 
 const buildRequestOrigin = (req) => {
   const hostHeader = req.get('host')
@@ -27,6 +29,49 @@ const buildRequestOrigin = (req) => {
 }
 
 const isApiRequest = (requestPath) => requestPath === '/api' || requestPath.startsWith('/api/')
+
+const buildCorsOptions = (req) => {
+  const origin = req.header('Origin')
+  const requestOrigin = buildRequestOrigin(req)
+  const requestAllowedOrigins = new Set(allowedOrigins)
+
+  if (requestOrigin) {
+    requestAllowedOrigins.add(requestOrigin)
+  }
+
+  const baseCorsOptions = {
+    allowedHeaders: corsAllowedHeaders,
+    credentials: true,
+    methods: corsAllowedMethods,
+    optionsSuccessStatus: 204,
+  }
+
+  if (!origin) {
+    return {
+      ...baseCorsOptions,
+      origin: false,
+    }
+  }
+
+  if ((!isProduction && requestAllowedOrigins.size === 0) || requestAllowedOrigins.has(origin)) {
+    return {
+      ...baseCorsOptions,
+      origin,
+    }
+  }
+
+  const corsError = new Error('Origin not allowed by CORS')
+  corsError.statusCode = 403
+  throw corsError
+}
+
+const corsOptionsDelegate = (req, callback) => {
+  try {
+    callback(null, buildCorsOptions(req))
+  } catch (error) {
+    callback(error)
+  }
+}
 
 const createHealthPayload = () => {
   const database = getDatabaseStatus()
@@ -59,36 +104,8 @@ const sendOperationalResponse = (res, message) => {
 app.disable('x-powered-by')
 app.set('trust proxy', trustProxy)
 app.use(securityHeaders)
-
-app.use(
-  cors((req, callback) => {
-    const origin = req.header('Origin')
-    const requestOrigin = buildRequestOrigin(req)
-    const requestAllowedOrigins = new Set(allowedOrigins)
-
-    if (requestOrigin) {
-      requestAllowedOrigins.add(requestOrigin)
-    }
-
-    if (!origin) {
-      return callback(null, {
-        credentials: true,
-        origin: false,
-      })
-    }
-
-    if ((!isProduction && requestAllowedOrigins.size === 0) || requestAllowedOrigins.has(origin)) {
-      return callback(null, {
-        credentials: true,
-        origin: true,
-      })
-    }
-
-    const corsError = new Error('Origin not allowed by CORS')
-    corsError.statusCode = 403
-    return callback(corsError)
-  }),
-)
+app.use(cors(corsOptionsDelegate))
+app.options('*', cors(corsOptionsDelegate))
 app.use(cookieParser())
 app.use(express.json({ limit: '1mb' }))
 
