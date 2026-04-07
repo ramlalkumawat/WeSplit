@@ -51,7 +51,7 @@ export default function Footer() {
           Designed & Developed by{' '}
           <a
             className="font-semibold text-slate-700 transition hover:text-primary"
-            href="https://instagram.com/ramlalkumawat"
+            href="https://www.instagram.com/_ramlal__kumawat?igsh=cTRrdzZ1aTk1ajFv"
             rel="noreferrer"
             target="_blank"
           >
